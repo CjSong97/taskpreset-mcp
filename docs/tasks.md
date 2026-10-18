@@ -6,7 +6,7 @@ actually in the repository.
 | #   | Task                                         | Milestone | Status      |
 | --- | -------------------------------------------- | --------- | ----------- |
 | 01  | Scaffold the TypeScript repository           | G1        | Done        |
-| 02  | Add quality checks and CI                    | G1        | Not started |
+| 02  | Add quality checks and CI                    | G1        | Done        |
 | 03  | Connect a stdio MCP server                   | G1        | Not started |
 | 04  | Add safe SQLite storage and migrations       | G2        | Not started |
 | 05  | Implement task capture and querying          | G2        | Not started |
