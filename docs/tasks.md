@@ -16,7 +16,7 @@ actually in the repository.
 | 09  | Add editing and lifecycle invariants         | G3        | Done        |
 | 10  | Preview a bounded daily plan                 | G4        | Done        |
 | 11  | Save and retrieve explicit day plans         | G4        | Done        |
-| 12  | Guard plan revisions and date boundaries     | G4        | Not started |
+| 12  | Guard plan revisions and date boundaries     | G4        | Done        |
 | 13  | Define completion and plan metrics           | G5        | Not started |
 | 14  | Implement deterministic metric queries       | G5        | Not started |
 | 15  | Test metric edge cases and London DST        | G5        | Not started |
