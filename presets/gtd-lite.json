@@ -1,0 +1,34 @@
+{
+  "id": "gtd-lite",
+  "version": "1.0.0",
+  "name": "GTD-lite",
+  "description": "A limited Getting Things Done-style workflow: capture actions to an inbox, clarify them as next or waiting, and group them under projects. Tags can represent contexts. It is not a complete GTD implementation (no weekly review, someday/maybe lists or reference material).",
+  "tagLabel": "Context",
+  "itemTypes": {
+    "project": {
+      "label": "Project",
+      "executable": false,
+      "parents": [],
+      "rootAllowed": true
+    },
+    "action": {
+      "label": "Action",
+      "executable": true,
+      "parents": ["project"],
+      "rootAllowed": true
+    }
+  },
+  "statuses": {
+    "inbox": { "label": "Inbox", "category": "open" },
+    "next": { "label": "Next", "category": "open" },
+    "waiting": { "label": "Waiting for", "category": "open" },
+    "done": { "label": "Done", "category": "done" },
+    "cancelled": { "label": "Cancelled", "category": "cancelled" }
+  },
+  "initialStatuses": ["inbox", "next", "waiting"],
+  "transitions": {
+    "inbox": ["next", "waiting", "cancelled"],
+    "next": ["inbox", "waiting", "cancelled"],
+    "waiting": ["inbox", "next", "cancelled"]
+  }
+}

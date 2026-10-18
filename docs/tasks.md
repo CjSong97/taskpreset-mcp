@@ -12,7 +12,7 @@ actually in the repository.
 | 05  | Implement task capture and querying          | G2        | Done        |
 | 06  | Verify completion, retries and restart       | G2        | Done        |
 | 07  | Validate declarative preset configuration    | G3        | Done        |
-| 08  | Supply Avatar-lite and GTD-lite presets      | G3        | Not started |
+| 08  | Supply Avatar-lite and GTD-lite presets      | G3        | Done        |
 | 09  | Add editing and lifecycle invariants         | G3        | Not started |
 | 10  | Preview a bounded daily plan                 | G4        | Not started |
 | 11  | Save and retrieve explicit day plans         | G4        | Not started |
