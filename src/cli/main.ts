@@ -3,10 +3,9 @@ import { parseArgs } from "node:util";
 import { resolveDbPath } from "../config/paths.js";
 import { isWaypointError, WaypointError } from "../domain/errors.js";
 import { log } from "../mcp/log.js";
+import { openApp } from "../app.js";
 import { createServer } from "../mcp/server.js";
 import { runStdio } from "../mcp/stdio.js";
-import { describeSystem } from "../services/system.js";
-import { openStore } from "../storage/store.js";
 
 interface StartupOptions {
   db: string | undefined;
@@ -15,21 +14,18 @@ interface StartupOptions {
 }
 
 async function serve(options: StartupOptions): Promise<void> {
-  const store = openStore({
+  const app = openApp({
     path: resolveDbPath(options.db),
     preset: options.preset,
     timezone: options.timezone,
   });
   log("info", "store_opened", {
-    created: store.created,
-    preset: store.preset.id,
-    schemaVersion: store.schemaVersion,
+    created: app.store.created,
+    preset: app.store.preset.id,
+    schemaVersion: app.store.schemaVersion,
   });
-  const server = createServer({
-    describeSystem: () => describeSystem(store.preset, store.timezone),
-  });
-  await runStdio(server, () => {
-    store.close();
+  await runStdio(createServer(app), () => {
+    app.close();
   });
 }
 

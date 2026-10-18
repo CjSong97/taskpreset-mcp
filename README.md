@@ -22,17 +22,24 @@ npm run build
 ## Run
 
 ```sh
-node dist/cli/main.js serve --preset avatar-lite
+node dist/cli/main.js serve --db /absolute/path/to/waypoint.db --preset avatar-lite
 ```
 
+- `--db` (or `WAYPOINT_DB`) must be absolute. Without it the store lives in the OS user-data
+  directory (`%LOCALAPPDATA%\Waypoint\waypoint.db` on Windows).
+- The store is created on first run and bound to its preset and timezone (default
+  `Europe/London`). Later runs may omit `--preset`; a different preset is refused.
+
 The server speaks MCP over stdio. It writes protocol messages to stdout and JSON-line diagnostics
-to stderr.
+to stderr (without item content).
 
 ## Tools
 
-| Tool         | Kind      | Purpose                                                         |
-| ------------ | --------- | --------------------------------------------------------------- |
-| `get_system` | read-only | Preset identity, item types, statuses, transitions, tz, limits. |
+| Tool           | Kind      | Purpose                                                          |
+| -------------- | --------- | ---------------------------------------------------------------- |
+| `get_system`   | read-only | Preset identity, item types, statuses, transitions, tz, limits.  |
+| `capture_item` | mutating  | Create an item; `request_id` makes retries safe.                 |
+| `query_items`  | read-only | Filter by id/type/status/parent/tag/due date; cursor pagination. |
 
 ## Development
 
