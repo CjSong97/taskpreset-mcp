@@ -6,6 +6,7 @@ import { isWaypointError, WaypointError } from "../domain/errors.js";
 import { log } from "../mcp/log.js";
 import { createServer } from "../mcp/server.js";
 import { runStdio } from "../mcp/stdio.js";
+import { backupStore } from "./backup.js";
 import { formatChecks, runDoctor } from "./doctor.js";
 import { initStore } from "./init.js";
 
@@ -17,12 +18,14 @@ Commands:
   serve    Run the MCP server over stdio (default). Creates the store on first run.
   init     Create a new empty store. Refuses to modify an existing file.
   doctor   Read-only diagnostics for the runtime, configuration and store.
+  backup   Write a verified snapshot of the store to --out (never overwrites).
 
 Options (environment variable in brackets):
   --db <absolute path>   Store file [WAYPOINT_DB]. Default: OS user-data directory.
   --preset <id|path>     avatar-lite, gtd-lite or an absolute .json path [WAYPOINT_PRESET].
                          New stores default to avatar-lite; existing stores keep their preset.
   --timezone <IANA>      Timezone for new stores, default Europe/London [WAYPOINT_TIMEZONE].
+  --out <absolute path>  backup only: destination file, which must not exist.
   --help                 Show this help.
 `;
 
@@ -60,6 +63,7 @@ async function main(argv: string[]): Promise<void> {
       db: { type: "string", default: process.env.WAYPOINT_DB },
       preset: { type: "string", default: process.env.WAYPOINT_PRESET },
       timezone: { type: "string", default: process.env.WAYPOINT_TIMEZONE },
+      out: { type: "string" },
       help: { type: "boolean", default: false },
     },
   });
@@ -87,10 +91,13 @@ async function main(argv: string[]): Promise<void> {
       if (checks.some((c) => !c.ok)) process.exitCode = 1;
       return;
     }
+    case "backup":
+      print(backupStore({ source: resolveDbPath(options.db), out: values.out }));
+      return;
     default:
       throw new WaypointError(
         "config",
-        `Unknown command "${command}". Available: serve, init, doctor (see --help).`,
+        `Unknown command "${command}". Available: serve, init, doctor, backup (see --help).`,
       );
   }
 }

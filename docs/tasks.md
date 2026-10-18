@@ -21,5 +21,5 @@ actually in the repository.
 | 14  | Implement deterministic metric queries       | G5        | Done        |
 | 15  | Test metric edge cases and London DST        | G5        | Done        |
 | 16  | Add local setup and diagnostics              | G6        | Done        |
-| 17  | Verify backup and restore safety             | G6        | Not started |
+| 17  | Verify backup and restore safety             | G6        | Done        |
 | 18  | Prepare real-client walkthrough & dogfooding | G6        | Not started |

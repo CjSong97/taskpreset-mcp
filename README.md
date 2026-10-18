@@ -46,7 +46,17 @@ node dist/cli/main.js doctor --db /absolute/path/to/waypoint.db
   integrity, schema version and preset binding, and it reports counts only (never item content).
   SQLite may leave its `-wal`/`-shm` sidecar files next to the store after a read.
 
-Keep your store outside any Git repository. See [docs/backup-restore.md](docs/backup-restore.md).
+Keep your store outside any Git repository.
+
+## Back up
+
+```sh
+node dist/cli/main.js backup --db /absolute/path/to/waypoint.db --out /absolute/path/to/backup.db
+```
+
+`backup` is safe while clients are connected; do not copy the `.db` file by hand while a server
+runs. Restore into a separate path and check it with `doctor` first. See
+[docs/backup-restore.md](docs/backup-restore.md).
 
 ## Run
 

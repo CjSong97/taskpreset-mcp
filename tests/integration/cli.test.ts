@@ -37,7 +37,7 @@ describe("waypoint CLI", () => {
 
   it("rejects relative paths and unknown commands with actionable errors", () => {
     expect(cli("init", "--db", "relative.db").stderr).toContain("must be absolute");
-    expect(cli("frobnicate").stderr).toContain("Available: serve, init, doctor");
+    expect(cli("frobnicate").stderr).toContain("Available: serve, init, doctor, backup");
   });
 });
 
