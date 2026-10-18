@@ -5,7 +5,8 @@ another MCP client) uses Waypoint's tools to capture work, organise it, plan a d
 and read deterministic metrics. Data lives in a local SQLite file you own. There is no cloud
 service, account, embedded LLM or API key.
 
-> Status: early prototype under active development. See [docs/tasks.md](docs/tasks.md).
+> Status: MVP (G1–G6) implemented and covered by automated tests. A human walkthrough in a real
+> client and a seven-day trial are still pending. See [docs/tasks.md](docs/tasks.md).
 
 ## Requirements
 
@@ -66,6 +67,18 @@ node dist/cli/main.js serve --db /absolute/path/to/waypoint.db
 
 The server speaks MCP over stdio. It writes protocol messages to stdout and JSON-line diagnostics
 to stderr (without item content). `node dist/cli/main.js --help` lists every command and option.
+
+## Connect a client
+
+Claude Code:
+
+```sh
+claude mcp add waypoint -- node /absolute/path/to/waypoint-mcp/dist/cli/main.js serve --db /absolute/path/to/waypoint.db
+```
+
+For Claude Desktop JSON config, a step-by-step walkthrough with expected outputs and a seven-day
+trial checklist, see [docs/dogfooding.md](docs/dogfooding.md). Human validation with a real client
+is still **pending**.
 
 ## Tools
 

@@ -4,7 +4,8 @@ Local-first productivity MCP server. An AI client calls Waypoint's tools to capt
 complete tasks and read deterministic metrics. Waypoint stores data in one local SQLite file per
 productivity system (preset). It embeds no LLM and needs no API keys or network access.
 
-Detailed specs live in `docs/` (product.md, architecture.md, metrics.md, tasks.md, decisions/).
+Detailed specs live in `docs/` (product.md, architecture.md, metrics.md, backup-restore.md,
+dogfooding.md, tasks.md, decisions/).
 
 ## Commands
 
@@ -16,6 +17,8 @@ npm run lint          # eslint
 npm run format:check  # prettier --check
 npm test              # vitest (unit, integration, MCP process tests; mcp tests need a build first)
 npm run verify        # typecheck + lint + format:check + build + test
+npm run check:clean-install  # clone HEAD to temp, npm ci, build, init, doctor, MCP smoke (slow)
+node dist/cli/main.js --help # serve | init | doctor | backup
 ```
 
 ## Architecture boundaries
@@ -25,7 +28,7 @@ npm run verify        # typecheck + lint + format:check + build + test
 - `src/storage/` — better-sqlite3 repositories and numbered migrations.
 - `src/services/` — use cases. Depend on domain + a storage interface. **Never import MCP.**
 - `src/mcp/` — tool schemas, handlers, stdio entry point. Thin adapters over services.
-- `src/cli/` — init / diagnostic commands.
+- `src/cli/` — `serve`, `init`, `doctor` (read-only) and `backup` commands.
 
 No ORM, framework, DI container, plugin system or monorepo.
 
