@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { tempDbPath } from "../support/tmp.js";
 import { callError, callOk, connect, runRaw } from "./helpers.js";
 
 const INIT = {
@@ -14,7 +15,7 @@ const INIT = {
 
 describe("G1 — client connection", () => {
   it("initialises, lists tools and calls get_system", async () => {
-    const session = await connect();
+    const session = await connect(["--db", tempDbPath()]);
     try {
       const { tools } = await session.client.listTools();
       const getSystem = tools.find((t) => t.name === "get_system");
@@ -32,12 +33,15 @@ describe("G1 — client connection", () => {
   });
 
   it("writes only JSON-RPC to stdout and exits cleanly when stdin closes", async () => {
-    const run = await runRaw([
-      INIT,
-      { jsonrpc: "2.0", method: "notifications/initialized" },
-      { jsonrpc: "2.0", id: 2, method: "tools/list" },
-      { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "get_system" } },
-    ]);
+    const run = await runRaw(
+      [
+        INIT,
+        { jsonrpc: "2.0", method: "notifications/initialized" },
+        { jsonrpc: "2.0", id: 2, method: "tools/list" },
+        { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "get_system" } },
+      ],
+      ["--db", tempDbPath()],
+    );
 
     expect(run.stdoutLines.length).toBe(3);
     for (const line of run.stdoutLines) {
@@ -50,7 +54,7 @@ describe("G1 — client connection", () => {
   });
 
   it("returns a tool error for an unknown tool and stays usable", async () => {
-    const session = await connect();
+    const session = await connect(["--db", tempDbPath()]);
     try {
       const error = await callError(session, "no_such_tool");
       expect(error.message).toMatch(/not found/i);
@@ -62,7 +66,7 @@ describe("G1 — client connection", () => {
   });
 
   it("fails startup with a clear stderr message for an unknown preset", async () => {
-    const run = await runRaw([INIT], ["--preset", "not-a-preset"]);
+    const run = await runRaw([INIT], ["--db", tempDbPath(), "--preset", "not-a-preset"]);
     expect(run.exitCode).toBe(1);
     expect(run.stdoutLines).toEqual([]);
     expect(run.stderr).toContain("Unknown preset");
