@@ -5,6 +5,7 @@ import {
   assertDateOnly,
   assertItemType,
   assertParentAllowed,
+  doneStatus,
   normalizeTags,
   statusCategory,
   statusesIn,
@@ -50,6 +51,12 @@ export interface QueryInput {
 export interface QueryResult {
   items: Item[];
   nextCursor: string | null;
+}
+
+export interface CompleteResult {
+  item: Item;
+  /** True when the item was already done; nothing was changed and no new completion counted. */
+  alreadyCompleted: boolean;
 }
 
 export interface ItemServiceDeps {
@@ -199,6 +206,31 @@ export class ItemService {
         items: visible,
         nextCursor: hasMore && last ? encodeCursor(last) : null,
       };
+    });
+  }
+
+  /**
+   * Move an open item to the preset's done status and stamp completed_at, atomically. Repeating
+   * the call returns the original completion unchanged. Children are never completed implicitly.
+   */
+  complete(id: string): CompleteResult {
+    const { preset, items, tx, clock } = this.deps;
+    const done = doneStatus(preset);
+    return tx.write(() => {
+      const item = items.get(id);
+      if (!item) throw new WaypointError("not_found", `Item ${id} does not exist.`);
+      const category = statusCategory(preset, item.status);
+      if (category === "done") return { item, alreadyCompleted: true };
+      if (category === "cancelled") {
+        throw new WaypointError(
+          "invalid_transition",
+          `Item ${id} is cancelled and cannot be completed.`,
+        );
+      }
+      const now = clock.now().toISOString();
+      const completed: Item = { ...item, status: done, completedAt: now, updatedAt: now };
+      items.update(completed);
+      return { item: completed, alreadyCompleted: false };
     });
   }
 }

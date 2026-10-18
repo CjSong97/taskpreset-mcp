@@ -2,7 +2,15 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { App } from "../app.js";
 import { itemDto } from "./dto.js";
 import { handler } from "./results.js";
-import { captureInput, captureOutput, queryInput, queryOutput, systemOutput } from "./schemas.js";
+import {
+  captureInput,
+  captureOutput,
+  completeInput,
+  completeOutput,
+  queryInput,
+  queryOutput,
+  systemOutput,
+} from "./schemas.js";
 import { SERVER_NAME, SERVER_VERSION } from "./server-info.js";
 
 const READ_ONLY = {
@@ -86,6 +94,29 @@ export function createServer(app: Pick<App, "describeSystem" | "items">): McpSer
         cursor: args.cursor,
       });
       return { items: result.items.map(itemDto), next_cursor: result.nextCursor };
+    }),
+  );
+
+  server.registerTool(
+    "complete_item",
+    {
+      title: "Complete item",
+      description:
+        "Mark an open item done and record its completion time. Calling it again on a done item " +
+        "returns the original completion without counting it twice. Children are not completed. " +
+        "Cancelled items cannot be completed.",
+      inputSchema: completeInput,
+      outputSchema: completeOutput,
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    handler("complete_item", (args) => {
+      const result = app.items.complete(args.id);
+      return { item: itemDto(result.item), already_completed: result.alreadyCompleted };
     }),
   );
 

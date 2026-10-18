@@ -35,11 +35,12 @@ to stderr (without item content).
 
 ## Tools
 
-| Tool           | Kind      | Purpose                                                          |
-| -------------- | --------- | ---------------------------------------------------------------- |
-| `get_system`   | read-only | Preset identity, item types, statuses, transitions, tz, limits.  |
-| `capture_item` | mutating  | Create an item; `request_id` makes retries safe.                 |
-| `query_items`  | read-only | Filter by id/type/status/parent/tag/due date; cursor pagination. |
+| Tool            | Kind                 | Purpose                                                          |
+| --------------- | -------------------- | ---------------------------------------------------------------- |
+| `get_system`    | read-only            | Preset identity, item types, statuses, transitions, tz, limits.  |
+| `capture_item`  | mutating             | Create an item; `request_id` makes retries safe.                 |
+| `query_items`   | read-only            | Filter by id/type/status/parent/tag/due date; cursor pagination. |
+| `complete_item` | mutating, idempotent | Mark done once; repeats return the original completion.          |
 
 ## Development
 
