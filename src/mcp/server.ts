@@ -7,6 +7,8 @@ import {
   captureOutput,
   completeInput,
   completeOutput,
+  planDayInput,
+  planDayOutput,
   queryInput,
   queryOutput,
   systemOutput,
@@ -22,7 +24,7 @@ const READ_ONLY = {
   openWorldHint: false,
 } as const;
 
-export function createServer(app: Pick<App, "describeSystem" | "items">): McpServer {
+export function createServer(app: Pick<App, "describeSystem" | "items" | "plans">): McpServer {
   const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION });
 
   server.registerTool(
@@ -151,6 +153,32 @@ export function createServer(app: Pick<App, "describeSystem" | "items">): McpSer
     handler("complete_item", (args) => {
       const result = app.items.complete(args.id);
       return { item: itemDto(result.item), already_completed: result.alreadyCompleted };
+    }),
+  );
+
+  server.registerTool(
+    "plan_day",
+    {
+      title: "Plan a day",
+      description:
+        "Preview open executable work for a day (today by default), ordered by priority, due " +
+        "date, then creation time and capped at max_items. The preview is read-only; it does " +
+        "not schedule times or estimate effort.",
+      inputSchema: planDayInput,
+      outputSchema: planDayOutput,
+      annotations: READ_ONLY,
+    },
+    handler("plan_day", (args) => {
+      const preview = app.plans.preview({ date: args.date, maxItems: args.max_items });
+      return {
+        mode: "preview",
+        date: preview.date,
+        timezone: preview.timezone,
+        note: "Preview only; nothing was saved.",
+        max_items: preview.maxItems,
+        candidates: preview.candidates.map(itemDto),
+        total_eligible: preview.totalEligible,
+      };
     }),
   );
 
