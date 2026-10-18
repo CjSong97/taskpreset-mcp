@@ -53,6 +53,25 @@ export class SqlitePlanRepository implements PlanRepository {
     this.insertMembers(plan);
   }
 
+  listBetween(from: string, to: string): DayPlan[] {
+    return this.db
+      .prepare<[string, string], { plan_date: string }>(
+        "SELECT plan_date FROM day_plans WHERE plan_date >= ? AND plan_date <= ? ORDER BY plan_date",
+      )
+      .all(from, to)
+      .flatMap((r) => this.getByDate(r.plan_date) ?? []);
+  }
+
+  countMembersCompletedBetween(planId: string, startUtc: string, endUtc: string): number {
+    const row = this.db
+      .prepare<[string, string, string], { n: number }>(
+        `SELECT count(*) AS n FROM day_plan_items m JOIN items i ON i.id = m.item_id
+          WHERE m.plan_id = ? AND i.completed_at >= ? AND i.completed_at < ?`,
+      )
+      .get(planId, startUtc, endUtc);
+    return row?.n ?? 0;
+  }
+
   private insertMembers(plan: DayPlan): void {
     const insert = this.db.prepare(
       "INSERT INTO day_plan_items (plan_id, item_id, position) VALUES (?, ?, ?)",

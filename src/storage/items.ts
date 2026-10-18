@@ -188,4 +188,16 @@ export class SqliteItemRepository implements ItemRepository {
       .get(...statuses, ...types);
     return row?.n ?? 0;
   }
+
+  countCompletedBetween(types: string[], startUtc: string, endUtc: string): number {
+    if (types.length === 0) return 0;
+    const row = this.db
+      .prepare<string[], { n: number }>(
+        `SELECT count(*) AS n FROM items
+          WHERE type IN (${types.map(() => "?").join(", ")})
+            AND completed_at >= ? AND completed_at < ?`,
+      )
+      .get(...types, startUtc, endUtc);
+    return row?.n ?? 0;
+  }
 }

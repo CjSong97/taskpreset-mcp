@@ -10,6 +10,8 @@ import {
   completeOutput,
   getDayPlanInput,
   getDayPlanOutput,
+  metricsInput,
+  metricsOutput,
   planDayInput,
   planDayOutput,
   queryInput,
@@ -20,6 +22,14 @@ import {
 } from "./schemas.js";
 import { SERVER_NAME, SERVER_VERSION } from "./server-info.js";
 
+const METRIC_DEFINITIONS = {
+  completed_count: "Executable items completed within [start_utc, end_utc).",
+  current_open_count: "Executable items open at as_of (current snapshot, not historical).",
+  planned_count: "Members of the plan's committed revision; cancelled members still count.",
+  completed_planned_count: "Plan members completed during that plan's local day.",
+  plan_completion_ratio: "completed_planned_count / planned_count; null when planned_count is 0.",
+};
+
 const READ_ONLY = {
   readOnlyHint: true,
   destructiveHint: false,
@@ -27,7 +37,9 @@ const READ_ONLY = {
   openWorldHint: false,
 } as const;
 
-export function createServer(app: Pick<App, "describeSystem" | "items" | "plans">): McpServer {
+export function createServer(
+  app: Pick<App, "describeSystem" | "items" | "plans" | "metrics">,
+): McpServer {
   const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION });
 
   server.registerTool(
@@ -234,6 +246,43 @@ export function createServer(app: Pick<App, "describeSystem" | "items" | "plans"
       const date = args.date ?? app.plans.today();
       const plan = app.plans.get(date);
       return { date, timezone: app.plans.timezone, plan: plan ? planDto(plan) : null };
+    }),
+  );
+
+  server.registerTool(
+    "get_metrics",
+    {
+      title: "Get metrics",
+      description:
+        "Deterministic completion and day-plan metrics for an inclusive range of local dates " +
+        "(today by default). Returns the exact UTC interval and timezone used. " +
+        "current_open_count is a snapshot at as_of, not a historical backlog.",
+      inputSchema: metricsInput,
+      outputSchema: metricsOutput,
+      annotations: READ_ONLY,
+    },
+    handler("get_metrics", (args) => {
+      const m = app.metrics.get({ from: args.from, to: args.to });
+      return {
+        timezone: m.timezone,
+        from: m.from,
+        to: m.to,
+        start_utc: m.startUtc,
+        end_utc: m.endUtc,
+        as_of: m.asOf,
+        completed_count: m.completedCount,
+        current_open_count: m.currentOpenCount,
+        daily_plans: m.dailyPlans.map((d) => ({
+          date: d.date,
+          revision: d.revision,
+          day_start_utc: d.dayStartUtc,
+          day_end_utc: d.dayEndUtc,
+          planned_count: d.plannedCount,
+          completed_planned_count: d.completedPlannedCount,
+          plan_completion_ratio: d.planCompletionRatio,
+        })),
+        definitions: METRIC_DEFINITIONS,
+      };
     }),
   );
 
