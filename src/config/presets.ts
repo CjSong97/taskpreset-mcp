@@ -3,7 +3,7 @@ import { isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { WaypointError } from "../domain/errors.js";
-import type { Preset } from "../domain/preset.js";
+import { presetProblems, type Preset } from "../domain/preset.js";
 
 const KEY = /^[a-z][a-z0-9_]{0,31}$/;
 const key = z.string().regex(KEY, "must be lower_snake_case, starting with a letter (max 32)");
@@ -41,10 +41,16 @@ const BUNDLED_DIR = fileURLToPath(new URL("../../presets/", import.meta.url));
 /** Parse and validate preset JSON. Throws WaypointError("config") with every problem found. */
 export function parsePreset(raw: unknown, source: string): Preset {
   const result = presetSchema.safeParse(raw);
-  if (!result.success) {
-    const problems = result.error.issues.map(
-      (i) => `${i.path.join(".") || "(root)"}: ${i.message}`,
-    );
+  const problems = result.success
+    ? presetProblems(result.data)
+    : result.error.issues.map((i) => {
+        const message =
+          i.code === "invalid_key"
+            ? "invalid key; keys must be lower_snake_case, starting with a letter (max 32)"
+            : i.message;
+        return `${i.path.join(".") || "(root)"}: ${message}`;
+      });
+  if (!result.success || problems.length > 0) {
     throw new WaypointError("config", `Invalid preset ${source}: ${problems.join("; ")}`, {
       problems,
     });
