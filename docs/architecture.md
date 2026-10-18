@@ -30,6 +30,35 @@ MCP client ──stdio──▶ src/mcp (schemas, handlers)
   annotations, maps domain errors to tool errors. Stdout carries protocol traffic only.
 - **cli** — `init` and `doctor` commands.
 
+## Preset format
+
+Presets are declarative JSON in `presets/` (or an absolute path given at startup). They are
+parsed, never executed.
+
+| Field                             | Meaning                                                            |
+| --------------------------------- | ------------------------------------------------------------------ |
+| `id`, `version`                   | kebab-case ID and semver; together they identify the preset.       |
+| `name`, `description`, `tagLabel` | Human labels. `tagLabel` says what tags mean (Element, Context).   |
+| `itemTypes`                       | `{ label, executable, parents[], rootAllowed }` per type key.      |
+| `statuses`                        | `{ label, category }` with category `open`, `done` or `cancelled`. |
+| `initialStatuses`                 | Open statuses an item may be created in; the first is the default. |
+| `transitions`                     | `from → [to]` moves allowed through `update_item`.                 |
+
+Validation (`src/config/presets.ts` for structure, `presetProblems` in `src/domain/preset.ts`
+for cross-references) rejects, reporting every problem at once:
+
+- unknown keys or keys that are not lower_snake_case;
+- parent types that do not exist, and item types that can never be created;
+- presets without an executable type;
+- presets without exactly one `done` status or without an open status;
+- initial statuses that are unknown or not open;
+- transitions from or to unknown statuses, out of `done`, into `done` (only `complete_item` reaches
+  done), or to the same status.
+
+Executable types are the work that can be planned, completed into metrics and counted as open
+work. Non-executable types (projects, goals) are containers; they can still be completed, which
+never completes their children.
+
 ## Store binding
 
 The first time a store is opened it records the validated preset snapshot in `app_metadata`. Later
