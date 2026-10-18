@@ -28,7 +28,7 @@ MCP client ──stdio──▶ src/mcp (schemas, handlers)
   rows; receive an injectable `Clock`.
 - **mcp** — registers tools with explicit Zod schemas, marks read-only vs mutating tools through
   annotations, maps domain errors to tool errors. Stdout carries protocol traffic only.
-- **cli** — `init` and `doctor` commands.
+- **cli** — `serve`, `init`, read-only `doctor` and `backup` (`VACUUM INTO`) commands.
 
 ## Preset format
 
