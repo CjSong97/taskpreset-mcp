@@ -1,0 +1,38 @@
+{
+  "id": "avatar-lite",
+  "version": "1.0.0",
+  "name": "Avatar-lite",
+  "description": "A limited, Avatar-inspired workflow: projects contain goals and tasks; tasks can be presented as quests; tags can represent Elements. It does not reproduce the full Avatar methodology.",
+  "tagLabel": "Element",
+  "itemTypes": {
+    "project": {
+      "label": "Project",
+      "executable": false,
+      "parents": [],
+      "rootAllowed": true
+    },
+    "goal": {
+      "label": "Goal",
+      "executable": false,
+      "parents": ["project"],
+      "rootAllowed": true
+    },
+    "task": {
+      "label": "Task (Quest)",
+      "executable": true,
+      "parents": ["project", "goal"],
+      "rootAllowed": true
+    }
+  },
+  "statuses": {
+    "not_started": { "label": "Not started", "category": "open" },
+    "in_progress": { "label": "In progress", "category": "open" },
+    "done": { "label": "Done", "category": "done" },
+    "cancelled": { "label": "Cancelled", "category": "cancelled" }
+  },
+  "initialStatuses": ["not_started", "in_progress"],
+  "transitions": {
+    "not_started": ["in_progress", "cancelled"],
+    "in_progress": ["not_started", "cancelled"]
+  }
+}
