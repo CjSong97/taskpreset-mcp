@@ -1,6 +1,6 @@
 import type Database from "better-sqlite3";
 import { canonicalJson } from "../config/canonical.js";
-import { loadPreset, parsePreset } from "../config/presets.js";
+import { DEFAULT_PRESET, loadPreset, parsePreset } from "../config/presets.js";
 import { WaypointError } from "../domain/errors.js";
 import type { Preset } from "../domain/preset.js";
 import { DEFAULT_TIMEZONE, isValidTimezone } from "../domain/time.js";
@@ -8,7 +8,6 @@ import { mapSqliteError, openDatabase } from "./database.js";
 import { runMigrations, type Migration } from "./migrate.js";
 import { MIGRATIONS } from "./migrations/index.js";
 
-export const DEFAULT_PRESET = "avatar-lite";
 const CONFIG_VERSION = "1";
 
 export interface StoreOptions {

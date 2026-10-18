@@ -34,7 +34,10 @@ const presetSchema = z.strictObject({
   transitions: z.record(key, z.array(key)),
 });
 
-export const BUNDLED_PRESET_IDS = ["avatar-lite"] as const;
+export const BUNDLED_PRESET_IDS = ["avatar-lite", "gtd-lite"] as const;
+
+/** Preset used when a new store is created without --preset. */
+export const DEFAULT_PRESET = "avatar-lite";
 
 const BUNDLED_DIR = fileURLToPath(new URL("../../presets/", import.meta.url));
 

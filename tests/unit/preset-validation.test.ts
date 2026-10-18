@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { loadPreset, parsePreset } from "../../src/config/presets.js";
+import { BUNDLED_PRESET_IDS, loadPreset, parsePreset } from "../../src/config/presets.js";
 import { WaypointError } from "../../src/domain/errors.js";
 
 type Json = Record<string, unknown>;
@@ -30,8 +30,11 @@ const statuses = (p: Json) => p.statuses as Record<string, Json>;
 const transitions = (p: Json) => p.transitions as Record<string, string[]>;
 
 describe("preset validation", () => {
-  it("accepts the bundled preset", () => {
-    expect(loadPreset("avatar-lite").id).toBe("avatar-lite");
+  it.each(BUNDLED_PRESET_IDS)("accepts bundled preset %s", (id) => {
+    expect(loadPreset(id).id).toBe(id);
+  });
+
+  it("accepts an unmodified preset", () => {
     expect(problemsFor(() => undefined)).toEqual([]);
   });
 
