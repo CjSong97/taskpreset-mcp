@@ -178,3 +178,31 @@ export const getDayPlanOutput = {
   timezone: z.string(),
   plan: planOutput.nullable(),
 };
+
+export const metricsInput = z.strictObject({
+  from: dateOnly.optional().describe("First local date (inclusive); defaults to today"),
+  to: dateOnly.optional().describe("Last local date (inclusive); defaults to from or today"),
+});
+
+export const metricsOutput = {
+  timezone: z.string(),
+  from: z.string(),
+  to: z.string(),
+  start_utc: z.string(),
+  end_utc: z.string(),
+  as_of: z.string(),
+  completed_count: z.number().int(),
+  current_open_count: z.number().int(),
+  daily_plans: z.array(
+    z.object({
+      date: z.string(),
+      revision: z.number().int(),
+      day_start_utc: z.string(),
+      day_end_utc: z.string(),
+      planned_count: z.number().int(),
+      completed_planned_count: z.number().int(),
+      plan_completion_ratio: z.number().nullable(),
+    }),
+  ),
+  definitions: z.record(z.string(), z.string()),
+};

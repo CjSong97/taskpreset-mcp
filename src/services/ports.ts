@@ -32,6 +32,8 @@ export interface ItemRepository {
    */
   planningCandidates(statuses: string[], types: string[], limit: number): Item[];
   countPlanningCandidates(statuses: string[], types: string[]): number;
+  /** Items of `types` with completed_at in [startUtc, endUtc). */
+  countCompletedBetween(types: string[], startUtc: string, endUtc: string): number;
 }
 
 /** Transaction boundary implemented by the store. */
@@ -45,4 +47,8 @@ export interface PlanRepository {
   insert(plan: DayPlan): void;
   /** Replace membership and bump revision/updated_at of an existing plan. */
   replace(plan: DayPlan): void;
+  /** Plans dated within [from, to] (inclusive local dates), in date order. */
+  listBetween(from: string, to: string): DayPlan[];
+  /** Members of the plan whose completed_at is in [startUtc, endUtc). */
+  countMembersCompletedBetween(planId: string, startUtc: string, endUtc: string): number;
 }

@@ -18,7 +18,7 @@ actually in the repository.
 | 11  | Save and retrieve explicit day plans         | G4        | Done        |
 | 12  | Guard plan revisions and date boundaries     | G4        | Done        |
 | 13  | Define completion and plan metrics           | G5        | Done        |
-| 14  | Implement deterministic metric queries       | G5        | Not started |
+| 14  | Implement deterministic metric queries       | G5        | Done        |
 | 15  | Test metric edge cases and London DST        | G5        | Not started |
 | 16  | Add local setup and diagnostics              | G6        | Not started |
 | 17  | Verify backup and restore safety             | G6        | Not started |
