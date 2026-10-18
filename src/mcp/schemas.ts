@@ -49,7 +49,7 @@ export const systemOutput = {
   limits: z.record(z.string(), z.unknown()),
 };
 
-export const captureInput = {
+export const captureInput = z.strictObject({
   type: key.describe("Item type ID from get_system"),
   title: z.string().min(1).max(LIMITS.titleMaxLength),
   description: z.string().max(LIMITS.descriptionMaxLength).optional(),
@@ -72,11 +72,11 @@ export const captureInput = {
     .describe(
       "Client-chosen idempotency key. Retrying with the same key and payload returns the original item instead of creating a duplicate.",
     ),
-};
+});
 
 export const captureOutput = { item: itemOutput, replayed: z.boolean() };
 
-export const queryInput = {
+export const queryInput = z.strictObject({
   id: itemId.optional().describe("Return just this item; unknown IDs are a not_found error"),
   type: key.optional(),
   status: z.array(key).min(1).max(20).optional().describe("Match any of these statuses"),
@@ -88,10 +88,34 @@ export const queryInput = {
   due_to: dateOnly.optional().describe("Due on or before this date"),
   limit: z.number().int().min(1).max(LIMITS.queryPageSizeMax).optional(),
   cursor: z.string().max(500).optional().describe("next_cursor from the previous page"),
-};
+});
 
 export const queryOutput = { items: z.array(itemOutput), next_cursor: z.string().nullable() };
 
-export const completeInput = { id: itemId };
+export const completeInput = z.strictObject({ id: itemId });
 
 export const completeOutput = { item: itemOutput, already_completed: z.boolean() };
+
+export const updateInput = z.strictObject({
+  id: itemId,
+  title: z.string().min(1).max(LIMITS.titleMaxLength).optional(),
+  description: z
+    .string()
+    .max(LIMITS.descriptionMaxLength)
+    .nullable()
+    .optional()
+    .describe("null clears the description"),
+  status: key
+    .optional()
+    .describe("Target status; must be a permitted transition. Use complete_item for done."),
+  parent_id: itemId.nullable().optional().describe("null moves the item to the root"),
+  tags: z
+    .array(z.string().max(LIMITS.tagMaxLength))
+    .max(LIMITS.tagsMax)
+    .optional()
+    .describe("Replaces all tags"),
+  priority: z.number().int().min(LIMITS.priority.highest).max(LIMITS.priority.lowest).optional(),
+  due_date: dateOnly.nullable().optional().describe("null clears the due date"),
+});
+
+export const updateOutput = { item: itemOutput };

@@ -13,8 +13,6 @@ export interface WorkflowFixture {
   defaultStatus: string;
   /** A permitted open → open transition. */
   move: { from: string; to: string };
-  /** An open → open transition the preset does not permit, if any. */
-  forbiddenMove?: { from: string; to: string };
   cancelled: string;
   done: string;
   tag: string;

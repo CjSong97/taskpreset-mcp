@@ -10,6 +10,8 @@ import {
   queryInput,
   queryOutput,
   systemOutput,
+  updateInput,
+  updateOutput,
 } from "./schemas.js";
 import { SERVER_NAME, SERVER_VERSION } from "./server-info.js";
 
@@ -94,6 +96,38 @@ export function createServer(app: Pick<App, "describeSystem" | "items">): McpSer
         cursor: args.cursor,
       });
       return { items: result.items.map(itemDto), next_cursor: result.nextCursor };
+    }),
+  );
+
+  server.registerTool(
+    "update_item",
+    {
+      title: "Update item",
+      description:
+        "Edit an item's title, description, tags, priority, due date or parent, or move it to a " +
+        "status permitted by the preset's transitions (including cancelling). It cannot mark " +
+        "work done (use complete_item), reopen completed work or set completion times.",
+      inputSchema: updateInput,
+      outputSchema: updateOutput,
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    handler("update_item", (args) => {
+      const item = app.items.update({
+        id: args.id,
+        title: args.title,
+        description: args.description,
+        status: args.status,
+        parentId: args.parent_id,
+        tags: args.tags,
+        priority: args.priority,
+        dueDate: args.due_date,
+      });
+      return { item: itemDto(item) };
     }),
   );
 

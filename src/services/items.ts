@@ -53,6 +53,20 @@ export interface QueryResult {
   nextCursor: string | null;
 }
 
+export interface UpdateInput {
+  id: string;
+  title?: string | undefined;
+  /** null clears the description. */
+  description?: string | null | undefined;
+  status?: string | undefined;
+  /** null detaches the item from its parent. */
+  parentId?: string | null | undefined;
+  tags?: string[] | undefined;
+  priority?: number | undefined;
+  /** null clears the due date. */
+  dueDate?: string | null | undefined;
+}
+
 export interface CompleteResult {
   item: Item;
   /** True when the item was already done; nothing was changed and no new completion counted. */
@@ -231,6 +245,82 @@ export class ItemService {
       const completed: Item = { ...item, status: done, completedAt: now, updatedAt: now };
       items.update(completed);
       return { item: completed, alreadyCompleted: false };
+    });
+  }
+
+  /**
+   * Edit approved fields and apply permitted open/cancel transitions. Done is reached only via
+   * complete_item and never left; completed_at cannot be set here. All checks run before any
+   * write, inside one transaction.
+   */
+  update(input: UpdateInput): Item {
+    const { preset, items, tx, clock } = this.deps;
+    const changes = Object.entries(input).filter(([k, v]) => k !== "id" && v !== undefined);
+    if (changes.length === 0) {
+      throw new WaypointError("validation", "Provide at least one field to change.");
+    }
+
+    return tx.write(() => {
+      const current = items.get(input.id);
+      if (!current) throw new WaypointError("not_found", `Item ${input.id} does not exist.`);
+      const next: Item = { ...current };
+
+      if (input.title !== undefined) {
+        next.title = input.title.trim();
+        if (next.title.length === 0) {
+          throw new WaypointError("validation", "title must not be empty.");
+        }
+      }
+      if (input.description !== undefined) next.description = input.description?.trim() || null;
+      if (input.tags !== undefined) next.tags = normalizeTags(input.tags);
+      if (input.priority !== undefined) next.priority = input.priority;
+      if (input.dueDate !== undefined) {
+        if (input.dueDate !== null) assertDateOnly("due_date", input.dueDate);
+        next.dueDate = input.dueDate;
+      }
+
+      if (input.status !== undefined && input.status !== current.status) {
+        const from = statusCategory(preset, current.status);
+        const to = statusCategory(preset, input.status);
+        if (to === "done") {
+          throw new WaypointError(
+            "invalid_transition",
+            "Use complete_item to mark work done; it records the completion time.",
+          );
+        }
+        if (from === "done") {
+          throw new WaypointError(
+            "invalid_transition",
+            "Completed work cannot be reopened or moved out of done.",
+          );
+        }
+        const allowed = preset.transitions[current.status] ?? [];
+        if (!allowed.includes(input.status)) {
+          throw new WaypointError(
+            "invalid_transition",
+            `Cannot move from ${current.status} to ${input.status}.`,
+            { allowed },
+          );
+        }
+        next.status = input.status;
+      }
+
+      if (input.parentId !== undefined && input.parentId !== current.parentId) {
+        let parent: Item | undefined;
+        if (input.parentId !== null) {
+          parent = items.get(input.parentId);
+          if (!parent) {
+            throw new WaypointError("not_found", `Parent item ${input.parentId} does not exist.`);
+          }
+        }
+        const ancestors = parent ? items.ancestorIds(parent.id) : [];
+        assertParentAllowed(preset, current, parent, ancestors);
+        next.parentId = input.parentId;
+      }
+
+      next.updatedAt = clock.now().toISOString();
+      items.update(next);
+      return next;
     });
   }
 }
