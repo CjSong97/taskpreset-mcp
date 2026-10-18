@@ -1,4 +1,5 @@
 import type { Item } from "../domain/item.js";
+import type { PlanWithItems } from "../services/plans.js";
 
 /** Wire format for items: snake_case, matching tool input field names. */
 export function itemDto(item: Item): Record<string, unknown> {
@@ -15,5 +16,15 @@ export function itemDto(item: Item): Record<string, unknown> {
     created_at: item.createdAt,
     updated_at: item.updatedAt,
     completed_at: item.completedAt,
+  };
+}
+
+export function planDto({ plan, items }: PlanWithItems): Record<string, unknown> {
+  return {
+    date: plan.date,
+    revision: plan.revision,
+    created_at: plan.createdAt,
+    updated_at: plan.updatedAt,
+    items: items.map((item, index) => ({ position: index + 1, item: itemDto(item) })),
   };
 }

@@ -4,6 +4,7 @@ import { ItemService } from "./services/items.js";
 import { PlanService } from "./services/plans.js";
 import { describeSystem, type SystemDescription } from "./services/system.js";
 import { SqliteItemRepository } from "./storage/items.js";
+import { SqlitePlanRepository } from "./storage/plans.js";
 import { openStore, type Store, type StoreOptions } from "./storage/store.js";
 
 export interface App {
@@ -30,8 +31,10 @@ export function openApp(options: StoreOptions & { clock?: Clock }): App {
     preset: store.preset,
     timezone: store.timezone,
     items: itemRepository,
+    plans: new SqlitePlanRepository(store.db),
     tx: store,
     clock,
+    newId: randomUUID,
   });
   return {
     store,
