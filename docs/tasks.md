@@ -8,7 +8,7 @@ actually in the repository.
 | 01  | Scaffold the TypeScript repository           | G1        | Done        |
 | 02  | Add quality checks and CI                    | G1        | Done        |
 | 03  | Connect a stdio MCP server                   | G1        | Done        |
-| 04  | Add safe SQLite storage and migrations       | G2        | Not started |
+| 04  | Add safe SQLite storage and migrations       | G2        | Done        |
 | 05  | Implement task capture and querying          | G2        | Not started |
 | 06  | Verify completion, retries and restart       | G2        | Not started |
 | 07  | Validate declarative preset configuration    | G3        | Not started |

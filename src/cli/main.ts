@@ -1,20 +1,36 @@
 #!/usr/bin/env node
 import { parseArgs } from "node:util";
-import { loadPreset } from "../config/presets.js";
+import { resolveDbPath } from "../config/paths.js";
 import { isWaypointError, WaypointError } from "../domain/errors.js";
-import { DEFAULT_TIMEZONE, isValidTimezone } from "../domain/time.js";
 import { log } from "../mcp/log.js";
 import { createServer } from "../mcp/server.js";
 import { runStdio } from "../mcp/stdio.js";
 import { describeSystem } from "../services/system.js";
+import { openStore } from "../storage/store.js";
 
-async function serve(options: { preset: string; timezone: string }): Promise<void> {
-  if (!isValidTimezone(options.timezone)) {
-    throw new WaypointError("config", `Unknown IANA timezone "${options.timezone}".`);
-  }
-  const preset = loadPreset(options.preset);
-  const server = createServer({ describeSystem: () => describeSystem(preset, options.timezone) });
-  await runStdio(server, () => undefined);
+interface StartupOptions {
+  db: string | undefined;
+  preset: string | undefined;
+  timezone: string | undefined;
+}
+
+async function serve(options: StartupOptions): Promise<void> {
+  const store = openStore({
+    path: resolveDbPath(options.db),
+    preset: options.preset,
+    timezone: options.timezone,
+  });
+  log("info", "store_opened", {
+    created: store.created,
+    preset: store.preset.id,
+    schemaVersion: store.schemaVersion,
+  });
+  const server = createServer({
+    describeSystem: () => describeSystem(store.preset, store.timezone),
+  });
+  await runStdio(server, () => {
+    store.close();
+  });
 }
 
 async function main(argv: string[]): Promise<void> {
@@ -22,13 +38,19 @@ async function main(argv: string[]): Promise<void> {
     args: argv,
     allowPositionals: true,
     options: {
-      preset: { type: "string", default: process.env.WAYPOINT_PRESET ?? "avatar-lite" },
-      timezone: { type: "string", default: process.env.WAYPOINT_TIMEZONE ?? DEFAULT_TIMEZONE },
+      db: { type: "string", default: process.env.WAYPOINT_DB },
+      preset: { type: "string", default: process.env.WAYPOINT_PRESET },
+      timezone: { type: "string", default: process.env.WAYPOINT_TIMEZONE },
     },
   });
+  const options: StartupOptions = {
+    db: values.db,
+    preset: values.preset,
+    timezone: values.timezone,
+  };
   const command = positionals[0] ?? "serve";
   if (command === "serve") {
-    await serve({ preset: values.preset, timezone: values.timezone });
+    await serve(options);
     return;
   }
   throw new WaypointError("config", `Unknown command "${command}". Available: serve.`);
