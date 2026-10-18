@@ -14,7 +14,9 @@ const keep = process.argv.includes("--keep");
 const work = mkdtempSync(join(tmpdir(), "waypoint-clean-install-"));
 const clone = join(work, "waypoint-mcp");
 const db = join(work, "data", "waypoint.db");
-const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+// Run npm's own CLI through node: no shell, so arguments are never re-parsed.
+const npmCli = process.env.npm_execpath;
+if (npmCli === undefined) throw new Error("Run this via `npm run check:clean-install`.");
 
 function step(name: string, fn: () => void | Promise<void>) {
   return async () => {
@@ -25,12 +27,11 @@ function step(name: string, fn: () => void | Promise<void>) {
 }
 
 function run(cmd: string, args: string[], cwd = clone): string {
-  return execFileSync(cmd, args, {
-    cwd,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-    shell: process.platform === "win32" && cmd === npm,
-  });
+  return execFileSync(cmd, args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+}
+
+function npm(args: string[]): string {
+  return run(process.execPath, [npmCli as string, ...args]);
 }
 
 interface ToolResult {
@@ -43,10 +44,10 @@ const steps = [
     run("git", ["clone", "--quiet", "--no-hardlinks", repo, clone], work);
   }),
   step("npm ci (lockfile)", () => {
-    run(npm, ["ci", "--no-audit", "--no-fund"]);
+    npm(["ci", "--no-audit", "--no-fund"]);
   }),
   step("npm run build", () => {
-    run(npm, ["run", "build"]);
+    npm(["run", "build"]);
   }),
   step("init a new empty store", () => {
     const out = run(process.execPath, ["dist/cli/main.js", "init", "--db", db]);
