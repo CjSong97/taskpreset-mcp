@@ -47,6 +47,34 @@ describe.each(WORKFLOWS)("workflow: $preset", (w) => {
   });
 });
 
+describe.each(WORKFLOWS)("workflow transitions: $preset", (w) => {
+  it("moves work through permitted statuses, cancels it and never uncancels it", () => {
+    const app = testApp({ preset: w.preset });
+    const work = app.items.capture({ type: w.work, title: "Work", status: w.move.from }).item;
+    expect(app.items.update({ id: work.id, status: w.move.to }).status).toBe(w.move.to);
+    expect(app.items.update({ id: work.id, status: w.cancelled }).status).toBe(w.cancelled);
+    expectWaypointError(
+      () => app.items.update({ id: work.id, status: w.defaultStatus }),
+      "invalid_transition",
+    );
+    expectWaypointError(() => app.items.complete(work.id), "invalid_transition");
+  });
+
+  it("routes done only through complete_item", () => {
+    const app = testApp({ preset: w.preset });
+    const work = app.items.capture({ type: w.work, title: "Work" }).item;
+    expectWaypointError(
+      () => app.items.update({ id: work.id, status: w.done }),
+      "invalid_transition",
+    );
+    app.items.complete(work.id);
+    expectWaypointError(
+      () => app.items.update({ id: work.id, status: w.defaultStatus }),
+      "invalid_transition",
+    );
+  });
+});
+
 describe("preset isolation", () => {
   it("keeps each preset's statuses to its own store", () => {
     const [avatar, gtd] = WORKFLOWS;
