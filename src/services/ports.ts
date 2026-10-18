@@ -25,6 +25,12 @@ export interface ItemRepository {
   update(item: Item): void;
   /** IDs from the item's parent up to the root. */
   ancestorIds(id: string): string[];
+  /**
+   * Items with one of `statuses` and one of `types`, ordered for planning: priority, due date
+   * (undated last), creation time, id.
+   */
+  planningCandidates(statuses: string[], types: string[], limit: number): Item[];
+  countPlanningCandidates(statuses: string[], types: string[]): number;
 }
 
 /** Transaction boundary implemented by the store. */

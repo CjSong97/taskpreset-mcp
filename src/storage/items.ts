@@ -162,4 +162,30 @@ export class SqliteItemRepository implements ItemRepository {
       .all(id)
       .map((r) => r.id);
   }
+
+  planningCandidates(statuses: string[], types: string[], limit: number): Item[] {
+    if (statuses.length === 0 || types.length === 0) return [];
+    return this.db
+      .prepare<(string | number)[], ItemRow>(
+        `SELECT ${COLUMNS} FROM items
+          WHERE status IN (${statuses.map(() => "?").join(", ")})
+            AND type IN (${types.map(() => "?").join(", ")})
+          ORDER BY priority, due_date IS NULL, due_date, created_at, id
+          LIMIT ?`,
+      )
+      .all(...statuses, ...types, limit)
+      .map(toItem);
+  }
+
+  countPlanningCandidates(statuses: string[], types: string[]): number {
+    if (statuses.length === 0 || types.length === 0) return 0;
+    const row = this.db
+      .prepare<string[], { n: number }>(
+        `SELECT count(*) AS n FROM items
+          WHERE status IN (${statuses.map(() => "?").join(", ")})
+            AND type IN (${types.map(() => "?").join(", ")})`,
+      )
+      .get(...statuses, ...types);
+    return row?.n ?? 0;
+  }
 }

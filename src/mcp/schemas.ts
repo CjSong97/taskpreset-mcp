@@ -119,3 +119,24 @@ export const updateInput = z.strictObject({
 });
 
 export const updateOutput = { item: itemOutput };
+
+export const planDayInput = z.strictObject({
+  date: dateOnly.optional().describe("Plan date; defaults to today in the store timezone"),
+  max_items: z
+    .number()
+    .int()
+    .min(1)
+    .max(LIMITS.planMaxItems)
+    .optional()
+    .describe(`Maximum suggestions in a preview (default ${LIMITS.planPreviewDefault})`),
+});
+
+export const planDayOutput = {
+  mode: z.enum(["preview", "committed"]),
+  date: z.string(),
+  timezone: z.string(),
+  note: z.string(),
+  max_items: z.number().int().optional(),
+  candidates: z.array(itemOutput).optional(),
+  total_eligible: z.number().int().optional(),
+};

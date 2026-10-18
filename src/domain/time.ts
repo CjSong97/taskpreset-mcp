@@ -9,6 +9,18 @@ export const systemClock: Clock = { now: () => new Date() };
 
 const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+/** The calendar date (YYYY-MM-DD) of `instant` in `timezone`. */
+export function localDate(instant: Date, timezone: string): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(instant);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
 /** True for a real calendar date in strict YYYY-MM-DD form (e.g. rejects 2026-02-30). */
 export function isValidDateOnly(value: string): boolean {
   const match = DATE_ONLY.exec(value);
