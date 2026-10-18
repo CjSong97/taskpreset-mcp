@@ -91,3 +91,7 @@ export const queryInput = {
 };
 
 export const queryOutput = { items: z.array(itemOutput), next_cursor: z.string().nullable() };
+
+export const completeInput = { id: itemId };
+
+export const completeOutput = { item: itemOutput, already_completed: z.boolean() };

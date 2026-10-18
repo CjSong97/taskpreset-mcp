@@ -10,7 +10,7 @@ actually in the repository.
 | 03  | Connect a stdio MCP server                   | G1        | Done        |
 | 04  | Add safe SQLite storage and migrations       | G2        | Done        |
 | 05  | Implement task capture and querying          | G2        | Done        |
-| 06  | Verify completion, retries and restart       | G2        | Not started |
+| 06  | Verify completion, retries and restart       | G2        | Done        |
 | 07  | Validate declarative preset configuration    | G3        | Not started |
 | 08  | Supply Avatar-lite and GTD-lite presets      | G3        | Not started |
 | 09  | Add editing and lifecycle invariants         | G3        | Not started |
