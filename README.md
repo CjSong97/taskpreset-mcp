@@ -9,29 +9,53 @@ service, account, embedded LLM or API key.
 
 ## Requirements
 
-- Node.js 24 LTS (see `.nvmrc`)
+- Node.js 24 LTS, 24.11 or later (see `.nvmrc`)
 - npm
+- `better-sqlite3` ships prebuilt binaries for common platforms. If none matches yours, npm builds
+  it from source, which needs Python and a C++ toolchain.
 
-## Build
+Waypoint is not published to npm. Run it from a local checkout.
+
+## Install
 
 ```sh
+git clone <this repository> waypoint-mcp
+cd waypoint-mcp
 npm ci
 npm run build
 ```
 
+## Create a store
+
+```sh
+node dist/cli/main.js init --db /absolute/path/to/waypoint.db --preset avatar-lite
+node dist/cli/main.js doctor --db /absolute/path/to/waypoint.db
+```
+
+- `--db` (or `WAYPOINT_DB`) must be an absolute path. If it is omitted, the store lives in the OS
+  user-data directory:
+  - Windows: `%LOCALAPPDATA%\Waypoint\waypoint.db`
+  - macOS: `~/Library/Application Support/Waypoint/waypoint.db`
+  - Linux: `$XDG_DATA_HOME/waypoint/waypoint.db` or `~/.local/share/waypoint/waypoint.db`
+- `--preset` selects `avatar-lite` (default) or `gtd-lite`, or takes an absolute path to a preset
+  JSON file. `--timezone` defaults to `Europe/London`. Both are fixed when the store is created.
+  A later run with a different preset or timezone is refused. Use a new `--db` instead.
+- `init` never modifies an existing file. `serve` also creates the store on first run if it does
+  not exist.
+- `doctor` is read-only. It checks Node, the native SQLite module, the configured preset, store
+  integrity, schema version and preset binding, and it reports counts only (never item content).
+  SQLite may leave its `-wal`/`-shm` sidecar files next to the store after a read.
+
+Keep your store outside any Git repository. See [docs/backup-restore.md](docs/backup-restore.md).
+
 ## Run
 
 ```sh
-node dist/cli/main.js serve --db /absolute/path/to/waypoint.db --preset avatar-lite
+node dist/cli/main.js serve --db /absolute/path/to/waypoint.db
 ```
 
-- `--db` (or `WAYPOINT_DB`) must be absolute. Without it the store lives in the OS user-data
-  directory (`%LOCALAPPDATA%\Waypoint\waypoint.db` on Windows).
-- The store is created on first run and bound to its preset and timezone (default
-  `Europe/London`). Later runs may omit `--preset`; a different preset is refused.
-
 The server speaks MCP over stdio. It writes protocol messages to stdout and JSON-line diagnostics
-to stderr (without item content).
+to stderr (without item content). `node dist/cli/main.js --help` lists every command and option.
 
 ## Tools
 
@@ -49,7 +73,8 @@ to stderr (without item content).
 ## Development
 
 ```sh
-npm run verify   # typecheck, lint, format check, build, tests
+npm run verify               # typecheck, lint, format check, build, tests
+npm run check:clean-install  # clone HEAD to a temp dir, npm ci, build, init, doctor, MCP smoke
 ```
 
 See [CLAUDE.md](CLAUDE.md) for architecture boundaries and safety rules.
