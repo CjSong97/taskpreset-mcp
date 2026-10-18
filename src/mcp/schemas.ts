@@ -129,6 +129,29 @@ export const planDayInput = z.strictObject({
     .max(LIMITS.planMaxItems)
     .optional()
     .describe(`Maximum suggestions in a preview (default ${LIMITS.planPreviewDefault})`),
+  commit: z
+    .boolean()
+    .optional()
+    .describe("Set true to save item_ids as the plan. Omitted or false = read-only preview."),
+  item_ids: z
+    .array(itemId)
+    .max(LIMITS.planMaxItems)
+    .optional()
+    .describe("Ordered plan members; required with commit=true"),
+  expected_revision: z
+    .number()
+    .int()
+    .min(0)
+    .optional()
+    .describe("Current revision of the existing plan (from get_day_plan); required to replace one"),
+});
+
+export const planOutput = z.object({
+  date: z.string(),
+  revision: z.number().int(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  items: z.array(z.object({ position: z.number().int(), item: itemOutput })),
 });
 
 export const planDayOutput = {
@@ -139,4 +162,19 @@ export const planDayOutput = {
   max_items: z.number().int().optional(),
   candidates: z.array(itemOutput).optional(),
   total_eligible: z.number().int().optional(),
+  existing_plan: z
+    .object({ revision: z.number().int(), item_ids: z.array(z.string()) })
+    .nullable()
+    .optional(),
+  plan: planOutput.optional(),
+};
+
+export const getDayPlanInput = z.strictObject({
+  date: dateOnly.optional().describe("Defaults to today in the store timezone"),
+});
+
+export const getDayPlanOutput = {
+  date: z.string(),
+  timezone: z.string(),
+  plan: planOutput.nullable(),
 };

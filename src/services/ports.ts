@@ -1,4 +1,5 @@
 import type { Item } from "../domain/item.js";
+import type { DayPlan } from "../domain/plan.js";
 
 /** Keyset position: items are ordered by (createdAt, id). */
 export interface ItemCursor {
@@ -37,4 +38,11 @@ export interface ItemRepository {
 export interface UnitOfWork {
   write<T>(fn: () => T): T;
   read<T>(fn: () => T): T;
+}
+
+export interface PlanRepository {
+  getByDate(date: string): DayPlan | undefined;
+  insert(plan: DayPlan): void;
+  /** Replace membership and bump revision/updated_at of an existing plan. */
+  replace(plan: DayPlan): void;
 }

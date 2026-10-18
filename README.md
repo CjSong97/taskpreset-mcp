@@ -42,6 +42,8 @@ to stderr (without item content).
 | `query_items`   | read-only            | Filter by id/type/status/parent/tag/due date; cursor pagination. |
 | `update_item`   | mutating             | Edit fields, re-parent, apply permitted status transitions.      |
 | `complete_item` | mutating, idempotent | Mark done once; repeats return the original completion.          |
+| `plan_day`      | preview / mutating   | Read-only preview by default; `commit=true` saves ordered items. |
+| `get_day_plan`  | read-only            | Committed plan, revision and current item states.                |
 
 ## Development
 
