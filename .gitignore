@@ -17,6 +17,10 @@ coverage/
 backups/
 data/
 
+# Generated reports contain item titles — never commit them
+waypoint-report*.html
+*.report.html
+
 # Personal configuration and secrets
 .env
 .env.*

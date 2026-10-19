@@ -18,7 +18,7 @@ npm run format:check  # prettier --check
 npm test              # vitest (unit, integration, MCP process tests; mcp tests need a build first)
 npm run verify        # typecheck + lint + format:check + build + test
 npm run check:clean-install  # clone HEAD to temp, npm ci, build, init, doctor, MCP smoke (slow)
-node dist/cli/main.js --help # serve | init | doctor | backup
+node dist/cli/main.js --help # serve | init | doctor | backup | report | demo
 ```
 
 ## Architecture boundaries

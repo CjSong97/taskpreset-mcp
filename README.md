@@ -59,6 +59,29 @@ node dist/cli/main.js backup --db /absolute/path/to/waypoint.db --out /absolute/
 runs. Restore into a separate path and check it with `doctor` first. See
 [docs/backup-restore.md](docs/backup-restore.md).
 
+## See your work (no AI client needed)
+
+```sh
+node dist/cli/main.js report --db /absolute/path/to/waypoint.db --out /absolute/path/to/report.html
+```
+
+`report` writes one self-contained HTML file: a kanban board with a column per preset status,
+header stats, a 26-week completion heatmap, completions per day, plan completion per day and open
+work by tag (Element or Context). It reads the store read-only, works while a server is running,
+needs no AI client or network, and contains no script or external resource. Open the file in any
+browser; it follows your light/dark setting. Add `--no-titles` before sharing a screenshot, and
+`--as-of YYYY-MM-DD` to pin "today". The file contains your item titles, so treat it as personal
+data. Charts show counts only: no XP, streaks or scores.
+
+To try it with synthetic data (never your real store):
+
+```sh
+node dist/cli/main.js demo --out /absolute/path/to/demo.db --preset avatar-lite
+node dist/cli/main.js report --db /absolute/path/to/demo.db --out /absolute/path/to/demo.html --as-of 2026-10-12
+```
+
+![Waypoint report generated from the demo store](docs/media/report-demo.png)
+
 ## Run
 
 ```sh

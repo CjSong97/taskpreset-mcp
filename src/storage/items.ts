@@ -2,7 +2,7 @@ import type Database from "better-sqlite3";
 import type { Item } from "../domain/item.js";
 import type { ItemCursor, ItemFilter, ItemRepository } from "../services/ports.js";
 
-interface ItemRow {
+export interface ItemRow {
   id: string;
   type: string;
   title: string;
@@ -17,10 +17,10 @@ interface ItemRow {
   completed_at: string | null;
 }
 
-const COLUMNS =
+export const COLUMNS =
   "id, type, title, description, status, parent_id, tags, priority, due_date, created_at, updated_at, completed_at";
 
-function toItem(row: ItemRow): Item {
+export function toItem(row: ItemRow): Item {
   return {
     id: row.id,
     type: row.type,

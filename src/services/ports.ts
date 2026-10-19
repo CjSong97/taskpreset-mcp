@@ -36,6 +36,21 @@ export interface ItemRepository {
   countCompletedBetween(types: string[], startUtc: string, endUtc: string): number;
 }
 
+/** Read-only queries behind the static report. */
+export interface ReportReader {
+  /** Count of `types` items per status that has at least one. */
+  statusCounts(types: string[]): Record<string, number>;
+  /**
+   * Up to `limit` `types` items in `status`. `order` "work" puts the most important first
+   * (priority, due date, creation); "recent" puts the latest change first.
+   */
+  cards(status: string, types: string[], order: "work" | "recent", limit: number): Item[];
+  /** completed_at instants of `types` items in [startUtc, endUtc). */
+  completedAt(types: string[], startUtc: string, endUtc: string): string[];
+  /** Number of `types` items in `statuses` per tag, most frequent first. */
+  tagCounts(statuses: string[], types: string[]): { tag: string; count: number }[];
+}
+
 /** Transaction boundary implemented by the store. */
 export interface UnitOfWork {
   write<T>(fn: () => T): T;
