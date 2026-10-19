@@ -7,7 +7,7 @@ const dirs: string[] = [];
 
 /** A fresh temporary directory, removed after the current test. */
 export function tempDir(): string {
-  const dir = mkdtempSync(join(tmpdir(), "waypoint-test-"));
+  const dir = mkdtempSync(join(tmpdir(), "taskpreset-test-"));
   dirs.push(dir);
   return dir;
 }

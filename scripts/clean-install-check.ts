@@ -11,9 +11,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 const keep = process.argv.includes("--keep");
-const work = mkdtempSync(join(tmpdir(), "waypoint-clean-install-"));
-const clone = join(work, "waypoint-mcp");
-const db = join(work, "data", "waypoint.db");
+const work = mkdtempSync(join(tmpdir(), "taskpreset-clean-install-"));
+const clone = join(work, "taskpreset-mcp");
+const db = join(work, "data", "taskpreset.db");
 // Run npm's own CLI through node: no shell, so arguments are never re-parsed.
 const npmCli = process.env.npm_execpath;
 if (npmCli === undefined) throw new Error("Run this via `npm run check:clean-install`.");
@@ -51,7 +51,7 @@ const steps = [
   }),
   step("init a new empty store", () => {
     const out = run(process.execPath, ["dist/cli/main.js", "init", "--db", db]);
-    if (!out.includes("Created Waypoint store")) throw new Error(out);
+    if (!out.includes("Created TaskPreset store")) throw new Error(out);
   }),
   step("doctor reports healthy", () => {
     const out = run(process.execPath, ["dist/cli/main.js", "doctor", "--db", db]);

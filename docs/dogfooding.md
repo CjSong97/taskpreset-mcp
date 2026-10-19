@@ -16,14 +16,14 @@ Use a dedicated store for the trial, outside any repository. The commands below 
 replace them with your own absolute paths.
 
 ```powershell
-cd C:\Users\CJ\Documents\Development\waypoint-mcp
+cd C:\Users\CJ\Documents\Development\taskpreset-mcp
 npm ci
 npm run build
-node dist\cli\main.js init --db C:\Users\CJ\AppData\Local\Waypoint\trial.db --preset avatar-lite
-node dist\cli\main.js doctor --db C:\Users\CJ\AppData\Local\Waypoint\trial.db
+node dist\cli\main.js init --db C:\Users\CJ\AppData\Local\TaskPreset\trial.db --preset avatar-lite
+node dist\cli\main.js doctor --db C:\Users\CJ\AppData\Local\TaskPreset\trial.db
 ```
 
-Expected: `init` prints `Created Waypoint store at …`, `preset: avatar-lite@1.0.0 (Avatar-lite)`,
+Expected: `init` prints `Created TaskPreset store at …`, `preset: avatar-lite@1.0.0 (Avatar-lite)`,
 `timezone: Europe/London` and `schema: version 2`. `doctor` prints only `[ok]` lines, ending with
 `Contents: 0 items, 0 day plans`.
 
@@ -35,17 +35,17 @@ The client launches `node` from its own PATH. If `node --version` in a new termi
 ### Claude Code
 
 ```powershell
-claude mcp add waypoint -- node C:\Users\CJ\Documents\Development\waypoint-mcp\dist\cli\main.js serve --db C:\Users\CJ\AppData\Local\Waypoint\trial.db
+claude mcp add taskpreset -- node C:\Users\CJ\Documents\Development\taskpreset-mcp\dist\cli\main.js serve --db C:\Users\CJ\AppData\Local\TaskPreset\trial.db
 claude mcp list
 ```
 
-Expected: `claude mcp list` shows `waypoint: node …main.js serve --db …trial.db - ✓ Connected`.
-Inside a Claude Code session, `/mcp` lists `waypoint` with 8 tools.
+Expected: `claude mcp list` shows `taskpreset: node …main.js serve --db …trial.db - ✓ Connected`.
+Inside a Claude Code session, `/mcp` lists `taskpreset` with 8 tools.
 
 Verified by Claude on 2026-10-18 with Claude Code 2.1.278: the `claude mcp add` syntax (from
-`claude mcp add --help`), and that `claude mcp list` recognises a Waypoint server entry. Claude did
+`claude mcp add --help`), and that `claude mcp list` recognises a TaskPreset server entry. Claude did
 not approve or connect it in your account; the `✓ Connected` result is part of the pending human
-check. Remove it later with `claude mcp remove waypoint`.
+check. Remove it later with `claude mcp remove taskpreset`.
 
 ### Claude Desktop
 
@@ -56,34 +56,34 @@ Desktop:
 ```json
 {
   "mcpServers": {
-    "waypoint": {
+    "taskpreset": {
       "command": "node",
       "args": [
-        "C:\\Users\\CJ\\Documents\\Development\\waypoint-mcp\\dist\\cli\\main.js",
+        "C:\\Users\\CJ\\Documents\\Development\\taskpreset-mcp\\dist\\cli\\main.js",
         "serve",
         "--db",
-        "C:\\Users\\CJ\\AppData\\Local\\Waypoint\\trial.db"
+        "C:\\Users\\CJ\\AppData\\Local\\TaskPreset\\trial.db"
       ]
     }
   }
 }
 ```
 
-Expected: the tools menu lists Waypoint's 8 tools. Not yet verified with Claude Desktop.
+Expected: the tools menu lists TaskPreset's 8 tools. Not yet verified with Claude Desktop.
 
 ## 3. Walkthrough (capture → plan → complete → measure)
 
 Ask the client in plain language; it chooses the tool calls. Approve mutating calls when asked.
 
-| #   | Say to the client                                                                                                                                                                            | Expected tool call(s)                     | Expected visible result                                                                                                                                    |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | "What productivity system is Waypoint configured with?"                                                                                                                                      | `get_system`                              | Avatar-lite; types project/goal/task ("Task (Quest)"); statuses not_started, in_progress, done, cancelled; tags = Element; Europe/London.                  |
-| 2   | "Create a project 'Waypoint trial' with three tasks: 'Write the trial notes' (priority 1, Element Fire), 'Review yesterday's plan' (priority 2), 'Tidy the inbox' (priority 3, due 31 Dec)." | `capture_item` ×4                         | Four items; tasks are `not_started` under the project.                                                                                                     |
-| 3   | Quit and restart the client, then: "List my open tasks in Waypoint trial."                                                                                                                   | `query_items`                             | The same three tasks, same IDs, oldest first.                                                                                                              |
-| 4   | "Suggest a plan for today with up to 3 items." then "Save that plan in that order."                                                                                                          | `plan_day` (preview), `plan_day` (commit) | Preview lists the three tasks in priority order and says nothing was saved; the commit returns revision 1.                                                 |
-| 5   | "Mark 'Write the trial notes' done." then "Mark it done again."                                                                                                                              | `complete_item` ×2                        | First: done with a completion time. Second: `already_completed: true` with the **same** completion time.                                                   |
-| 6   | "Show today's plan and my metrics for today."                                                                                                                                                | `get_day_plan`, `get_metrics`             | Plan revision 1: position 1 done, 2 and 3 not_started. Metrics: completed 1, open 2, planned 3, completed planned 1, ratio ≈ 0.33, Europe/London interval. |
-| 7   | "Plan yesterday." (negative check)                                                                                                                                                           | `plan_day`                                | A validation error saying past-day plans cannot be changed.                                                                                                |
+| #   | Say to the client                                                                                                                                                                              | Expected tool call(s)                     | Expected visible result                                                                                                                                    |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | "What productivity system is TaskPreset configured with?"                                                                                                                                      | `get_system`                              | Avatar-lite; types project/goal/task ("Task (Quest)"); statuses not_started, in_progress, done, cancelled; tags = Element; Europe/London.                  |
+| 2   | "Create a project 'TaskPreset trial' with three tasks: 'Write the trial notes' (priority 1, Element Fire), 'Review yesterday's plan' (priority 2), 'Tidy the inbox' (priority 3, due 31 Dec)." | `capture_item` ×4                         | Four items; tasks are `not_started` under the project.                                                                                                     |
+| 3   | Quit and restart the client, then: "List my open tasks in TaskPreset trial."                                                                                                                   | `query_items`                             | The same three tasks, same IDs, oldest first.                                                                                                              |
+| 4   | "Suggest a plan for today with up to 3 items." then "Save that plan in that order."                                                                                                            | `plan_day` (preview), `plan_day` (commit) | Preview lists the three tasks in priority order and says nothing was saved; the commit returns revision 1.                                                 |
+| 5   | "Mark 'Write the trial notes' done." then "Mark it done again."                                                                                                                                | `complete_item` ×2                        | First: done with a completion time. Second: `already_completed: true` with the **same** completion time.                                                   |
+| 6   | "Show today's plan and my metrics for today."                                                                                                                                                  | `get_day_plan`, `get_metrics`             | Plan revision 1: position 1 done, 2 and 3 not_started. Metrics: completed 1, open 2, planned 3, completed planned 1, ratio ≈ 0.33, Europe/London interval. |
+| 7   | "Plan yesterday." (negative check)                                                                                                                                                             | `plan_day`                                | A validation error saying past-day plans cannot be changed.                                                                                                |
 
 Record what you saw against each row, and note anything confusing in the tool descriptions.
 

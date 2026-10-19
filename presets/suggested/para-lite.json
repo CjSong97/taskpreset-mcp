@@ -2,7 +2,7 @@
   "id": "para-lite",
   "version": "1.0.0",
   "name": "PARA-lite",
-  "description": "A limited, PARA-inspired structure: areas of ongoing responsibility contain projects, resources and tasks; inactive items are archived. Tags can represent topics. It is not a complete PARA implementation (PARA organises notes and files; Waypoint stores only titles and descriptions, so a resource is a pointer, not a document).",
+  "description": "A limited, PARA-inspired structure: areas of ongoing responsibility contain projects, resources and tasks; inactive items are archived. Tags can represent topics. It is not a complete PARA implementation (PARA organises notes and files; TaskPreset stores only titles and descriptions, so a resource is a pointer, not a document).",
   "tagLabel": "Topic",
   "itemTypes": {
     "area": {

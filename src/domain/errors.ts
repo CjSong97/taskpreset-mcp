@@ -1,4 +1,4 @@
-export type WaypointErrorCode =
+export type TaskPresetErrorCode =
   | "validation"
   | "not_found"
   | "conflict"
@@ -9,18 +9,18 @@ export type WaypointErrorCode =
   | "busy";
 
 /** Expected, user-facing failure. Messages must not include item titles or descriptions. */
-export class WaypointError extends Error {
-  readonly code: WaypointErrorCode;
+export class TaskPresetError extends Error {
+  readonly code: TaskPresetErrorCode;
   readonly details: Record<string, unknown> | undefined;
 
-  constructor(code: WaypointErrorCode, message: string, details?: Record<string, unknown>) {
+  constructor(code: TaskPresetErrorCode, message: string, details?: Record<string, unknown>) {
     super(message);
-    this.name = "WaypointError";
+    this.name = "TaskPresetError";
     this.code = code;
     this.details = details;
   }
 }
 
-export function isWaypointError(error: unknown): error is WaypointError {
-  return error instanceof WaypointError;
+export function isTaskPresetError(error: unknown): error is TaskPresetError {
+  return error instanceof TaskPresetError;
 }

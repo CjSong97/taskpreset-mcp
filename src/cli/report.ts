@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, normalize } from "node:path";
 import { pathToFileURL } from "node:url";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import { isValidDateOnly, systemClock, type Clock } from "../domain/time.js";
 import { MetricsService } from "../services/metrics.js";
 import { buildReport, endOfLocalDay } from "../services/report.js";
@@ -25,20 +25,20 @@ export interface ReportCommandOptions {
 export function writeReport(options: ReportCommandOptions): string[] {
   const { source } = options;
   if (options.out === undefined || !isAbsolute(options.out)) {
-    throw new WaypointError("config", "report requires --out with an absolute file path.");
+    throw new TaskPresetError("config", "report requires --out with an absolute file path.");
   }
   const out = normalize(options.out);
   if (!out.toLowerCase().endsWith(".html")) {
-    throw new WaypointError("config", "--out must be an .html file.");
+    throw new TaskPresetError("config", "--out must be an .html file.");
   }
   if (existsSync(out)) {
-    throw new WaypointError("config", `${out} already exists; reports never overwrite files.`);
+    throw new TaskPresetError("config", `${out} already exists; reports never overwrite files.`);
   }
   if (options.asOf !== undefined && !isValidDateOnly(options.asOf)) {
-    throw new WaypointError("config", "--as-of must be a real calendar date as YYYY-MM-DD.");
+    throw new TaskPresetError("config", "--as-of must be a real calendar date as YYYY-MM-DD.");
   }
   if (!existsSync(source) || statSync(source).size === 0) {
-    throw new WaypointError("config", `No store at ${source}.`);
+    throw new TaskPresetError("config", `No store at ${source}.`);
   }
 
   const store = openReadonlyStore(source);

@@ -4,10 +4,10 @@ Date: 2026-10-18 · Status: accepted
 
 ## Decision
 
-- **Location.** `--db <absolute path>` (or `WAYPOINT_DB`). Relative paths are rejected because MCP
+- **Location.** `--db <absolute path>` (or `TASKPRESET_DB`). Relative paths are rejected because MCP
   clients launch servers from different working directories. Default:
-  `%LOCALAPPDATA%\Waypoint\waypoint.db` (Windows), `~/Library/Application Support/Waypoint/` (macOS),
-  `$XDG_DATA_HOME/waypoint/` or `~/.local/share/waypoint/` (Linux).
+  `%LOCALAPPDATA%\TaskPreset\taskpreset.db` (Windows), `~/Library/Application Support/TaskPreset/` (macOS),
+  `$XDG_DATA_HOME/taskpreset/` or `~/.local/share/taskpreset/` (Linux).
 - **Creation.** `serve` creates the store on first use with the configured preset (default
   `avatar-lite`) and timezone (default `Europe/London`). Preset and timezone are validated before any
   file is created.

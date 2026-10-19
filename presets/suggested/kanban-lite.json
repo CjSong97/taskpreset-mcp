@@ -2,7 +2,7 @@
   "id": "kanban-lite",
   "version": "1.0.0",
   "name": "Kanban-lite",
-  "description": "A limited, Personal Kanban-style board: cards move from backlog through ready to doing and done. Tags can represent swimlanes. It is not a complete Kanban implementation (no work-in-progress limits, pull signals, blocked markers, classes of service or flow metrics beyond Waypoint's own).",
+  "description": "A limited, Personal Kanban-style board: cards move from backlog through ready to doing and done. Tags can represent swimlanes. It is not a complete Kanban implementation (no work-in-progress limits, pull signals, blocked markers, classes of service or flow metrics beyond TaskPreset's own).",
   "tagLabel": "Swimlane",
   "itemTypes": {
     "card": {

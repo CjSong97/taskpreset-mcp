@@ -67,6 +67,6 @@ incompatibly. Use a new store to switch presets.
 
 ## Error model
 
-Services throw `WaypointError` with a stable `code` (`validation`, `not_found`, `conflict`,
+Services throw `TaskPresetError` with a stable `code` (`validation`, `not_found`, `conflict`,
 `invalid_transition`, `busy`, ...). MCP handlers convert them into `isError` tool results with the
 code and a safe message. Unexpected errors are logged to stderr without item content.

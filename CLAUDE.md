@@ -1,7 +1,7 @@
-# Waypoint MCP
+# TaskPreset MCP
 
-Local-first productivity MCP server. An AI client calls Waypoint's tools to capture work, plan a day,
-complete tasks and read deterministic metrics. Waypoint stores data in one local SQLite file per
+Local-first productivity MCP server. An AI client calls TaskPreset's tools to capture work, plan a day,
+complete tasks and read deterministic metrics. TaskPreset stores data in one local SQLite file per
 productivity system (preset). It embeds no LLM and needs no API keys or network access.
 
 Detailed specs live in `docs/` (product.md, architecture.md, metrics.md, backup-restore.md,

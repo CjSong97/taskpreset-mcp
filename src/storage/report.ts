@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
 import { parsePreset } from "../config/presets.js";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import type { Item } from "../domain/item.js";
 import type { Preset } from "../domain/preset.js";
 import type { ReportReader, UnitOfWork } from "../services/ports.js";
@@ -25,7 +25,7 @@ export function openReadonlyStore(path: string): ReadonlyStore {
   try {
     db = new Database(path, { readonly: true, fileMustExist: true });
   } catch (error) {
-    throw new WaypointError(
+    throw new TaskPresetError(
       "config",
       `No store at ${path} (${error instanceof Error ? error.message : String(error)}).`,
     );
@@ -35,20 +35,20 @@ export function openReadonlyStore(path: string): ReadonlyStore {
       db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(name) !==
       undefined;
     if (!hasTable("schema_migrations") || !hasTable("app_metadata")) {
-      throw new WaypointError("config", `${path} is not a Waypoint store.`);
+      throw new TaskPresetError("config", `${path} is not a TaskPreset store.`);
     }
     const current =
       (db.prepare("SELECT max(version) AS v FROM schema_migrations").get() as { v: number | null })
         .v ?? 0;
     const latest = MIGRATIONS.at(-1)?.version ?? 0;
     if (current > latest) {
-      throw new WaypointError(
+      throw new TaskPresetError(
         "config",
-        `Store schema version ${current} is newer than this build (${latest}); upgrade Waypoint.`,
+        `Store schema version ${current} is newer than this build (${latest}); upgrade TaskPreset.`,
       );
     }
     if (current < latest) {
-      throw new WaypointError(
+      throw new TaskPresetError(
         "config",
         `Store schema version ${current} is older than this build (${latest}). Start "serve" once to migrate it, then retry.`,
       );
@@ -59,7 +59,7 @@ export function openReadonlyStore(path: string): ReadonlyStore {
       ).map((r) => [r.key, r.value]),
     );
     if (metadata.preset_snapshot === undefined || metadata.timezone === undefined) {
-      throw new WaypointError("config", `${path} has no bound preset; it is not a usable store.`);
+      throw new TaskPresetError("config", `${path} has no bound preset; it is not a usable store.`);
     }
     const handle = db;
     return {
@@ -67,7 +67,7 @@ export function openReadonlyStore(path: string): ReadonlyStore {
       preset: parsePreset(JSON.parse(metadata.preset_snapshot), "stored snapshot"),
       timezone: metadata.timezone,
       write() {
-        throw new WaypointError("storage", "This store is open read-only.");
+        throw new TaskPresetError("storage", "This store is open read-only.");
       },
       read<T>(fn: () => T): T {
         try {

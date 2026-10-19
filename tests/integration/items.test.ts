@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countItems, expectWaypointError, testApp } from "../support/app.js";
+import { countItems, expectTaskPresetError, testApp } from "../support/app.js";
 
 describe("capture_item service", () => {
   it("creates an item with preset defaults and clock timestamps", () => {
@@ -29,11 +29,11 @@ describe("capture_item service", () => {
     const task = app.items.capture({ type: "task", title: "T", parentId: goal.id }).item;
     expect(task.parentId).toBe(goal.id);
 
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.capture({ type: "project", title: "X", parentId: task.id }),
       "validation",
     );
-    expectWaypointError(
+    expectTaskPresetError(
       () =>
         app.items.capture({
           type: "task",
@@ -46,17 +46,17 @@ describe("capture_item service", () => {
 
   it("rejects invalid input without writing anything", () => {
     const app = testApp();
-    expectWaypointError(() => app.items.capture({ type: "epic", title: "X" }), "validation");
-    expectWaypointError(() => app.items.capture({ type: "task", title: "   " }), "validation");
-    expectWaypointError(
+    expectTaskPresetError(() => app.items.capture({ type: "epic", title: "X" }), "validation");
+    expectTaskPresetError(() => app.items.capture({ type: "task", title: "   " }), "validation");
+    expectTaskPresetError(
       () => app.items.capture({ type: "task", title: "X", status: "done" }),
       "validation",
     );
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.capture({ type: "task", title: "X", status: "nope" }),
       "validation",
     );
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.capture({ type: "task", title: "X", dueDate: "2026-02-30" }),
       "validation",
     );
@@ -76,7 +76,7 @@ describe("capture_item service", () => {
   it("rejects a reused request_id with a different payload", () => {
     const app = testApp();
     const first = app.items.capture({ type: "task", title: "Once", requestId: "req-1" });
-    const error = expectWaypointError(
+    const error = expectTaskPresetError(
       () => app.items.capture({ type: "task", title: "Different", requestId: "req-1" }),
       "conflict",
     );
@@ -129,14 +129,14 @@ describe("query_items service", () => {
 
   it("returns not_found for an unknown single id and validates filters", () => {
     const { app } = seed();
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.query({ id: "00000000-0000-4000-8000-000000000000" }),
       "not_found",
     );
-    expectWaypointError(() => app.items.query({ type: "epic" }), "validation");
-    expectWaypointError(() => app.items.query({ statuses: ["nope"] }), "validation");
-    expectWaypointError(() => app.items.query({ dueFrom: "2026-02-31" }), "validation");
-    expectWaypointError(() => app.items.query({ cursor: "garbage" }), "validation");
+    expectTaskPresetError(() => app.items.query({ type: "epic" }), "validation");
+    expectTaskPresetError(() => app.items.query({ statuses: ["nope"] }), "validation");
+    expectTaskPresetError(() => app.items.query({ dueFrom: "2026-02-31" }), "validation");
+    expectTaskPresetError(() => app.items.query({ cursor: "garbage" }), "validation");
   });
 
   it("paginates deterministically, including items created in the same instant", () => {

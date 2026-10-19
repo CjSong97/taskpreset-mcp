@@ -1,12 +1,23 @@
-# Waypoint MCP
+# TaskPreset MCP
 
-A configurable, local-first productivity MCP server. An AI client (Claude Desktop, Claude Code or
-another MCP client) uses Waypoint's tools to capture work, organise it, plan a day, complete tasks
-and read deterministic metrics. Data lives in a local SQLite file you own. There is no cloud
-service, account, embedded LLM or API key.
+**Productivity-system presets for AI assistants.** TaskPreset is a local-first
+[MCP](https://modelcontextprotocol.io) server: pick a methodology (GTD, Kanban, Scrum, PARA, OKR
+and more), and an AI client such as Claude Desktop or Claude Code can capture work, enforce that
+system's workflow, plan a day, complete tasks and read deterministic metrics. Data lives in one
+SQLite file you own. There is no cloud service, account, embedded LLM or API key.
 
-> Status: MVP (G1–G6) implemented and covered by automated tests. A human walkthrough in a real
-> client and a seven-day trial are still pending. See [docs/tasks.md](docs/tasks.md).
+- **Your system, enforced.** Presets are declarative JSON: item types, statuses and allowed
+  transitions. Two are bundled (`avatar-lite`, `gtd-lite`) and
+  [eight more](presets/suggested/README.md) are suggested starters.
+- **Honest metrics.** Completion and plan metrics with exact, documented definitions and
+  timezone-correct day boundaries ([docs/metrics.md](docs/metrics.md)). No XP, streaks or scores.
+- **Works without an AI client too.** `report` writes an offline HTML kanban board and charts.
+- **Why not a markdown file?** A file cannot reject an invalid transition, keep saved plan
+  revisions, or compute metrics you can trust. TaskPreset can.
+
+> Status: hobby project, MVP complete and covered by automated tests. Not published to npm. No
+> licence has been chosen yet, so all rights are reserved until one is added. See
+> [docs/tasks.md](docs/tasks.md).
 
 ## Requirements
 
@@ -15,13 +26,13 @@ service, account, embedded LLM or API key.
 - `better-sqlite3` ships prebuilt binaries for common platforms. If none matches yours, npm builds
   it from source, which needs Python and a C++ toolchain.
 
-Waypoint is not published to npm. Run it from a local checkout.
+TaskPreset is not published to npm. Run it from a local checkout.
 
 ## Install
 
 ```sh
-git clone <this repository> waypoint-mcp
-cd waypoint-mcp
+git clone https://github.com/CjSong97/taskpreset-mcp.git
+cd taskpreset-mcp
 npm ci
 npm run build
 ```
@@ -29,15 +40,16 @@ npm run build
 ## Create a store
 
 ```sh
-node dist/cli/main.js init --db /absolute/path/to/waypoint.db --preset avatar-lite
-node dist/cli/main.js doctor --db /absolute/path/to/waypoint.db
+node dist/cli/main.js init --db /absolute/path/to/taskpreset.db --preset avatar-lite
+node dist/cli/main.js doctor --db /absolute/path/to/taskpreset.db
 ```
 
-- `--db` (or `WAYPOINT_DB`) must be an absolute path. If it is omitted, the store lives in the OS
+- `--db` (or `TASKPRESET_DB`; the pre-rename `WAYPOINT_DB` is still honoured) must be an absolute path. If it is omitted, the store lives in the OS
   user-data directory:
-  - Windows: `%LOCALAPPDATA%\Waypoint\waypoint.db`
-  - macOS: `~/Library/Application Support/Waypoint/waypoint.db`
-  - Linux: `$XDG_DATA_HOME/waypoint/waypoint.db` or `~/.local/share/waypoint/waypoint.db`
+  - Windows: `%LOCALAPPDATA%\TaskPreset\taskpreset.db`
+  - macOS: `~/Library/Application Support/TaskPreset/taskpreset.db`
+  - Linux: `$XDG_DATA_HOME/taskpreset/taskpreset.db` or `~/.local/share/taskpreset/taskpreset.db`
+  - A store already at the pre-rename location (`Waypoint/waypoint.db`) keeps being used.
 - `--preset` selects `avatar-lite` (default) or `gtd-lite`, or takes an absolute path to a preset
   JSON file. `--timezone` defaults to `Europe/London`. Both are fixed when the store is created.
   A later run with a different preset or timezone is refused. Use a new `--db` instead.
@@ -61,7 +73,7 @@ through the engine.
 ## Back up
 
 ```sh
-node dist/cli/main.js backup --db /absolute/path/to/waypoint.db --out /absolute/path/to/backup.db
+node dist/cli/main.js backup --db /absolute/path/to/taskpreset.db --out /absolute/path/to/backup.db
 ```
 
 `backup` is safe while clients are connected; do not copy the `.db` file by hand while a server
@@ -71,7 +83,7 @@ runs. Restore into a separate path and check it with `doctor` first. See
 ## See your work (no AI client needed)
 
 ```sh
-node dist/cli/main.js report --db /absolute/path/to/waypoint.db --out /absolute/path/to/report.html
+node dist/cli/main.js report --db /absolute/path/to/taskpreset.db --out /absolute/path/to/report.html
 ```
 
 `report` writes one self-contained HTML file: a kanban board with a column per preset status,
@@ -89,12 +101,12 @@ node dist/cli/main.js demo --out /absolute/path/to/demo.db --preset avatar-lite
 node dist/cli/main.js report --db /absolute/path/to/demo.db --out /absolute/path/to/demo.html --as-of 2026-10-12
 ```
 
-![Waypoint report generated from the demo store](docs/media/report-demo.png)
+![TaskPreset report generated from the demo store](docs/media/report-demo.png)
 
 ## Run
 
 ```sh
-node dist/cli/main.js serve --db /absolute/path/to/waypoint.db
+node dist/cli/main.js serve --db /absolute/path/to/taskpreset.db
 ```
 
 The server speaks MCP over stdio. It writes protocol messages to stdout and JSON-line diagnostics
@@ -105,12 +117,13 @@ to stderr (without item content). `node dist/cli/main.js --help` lists every com
 Claude Code:
 
 ```sh
-claude mcp add waypoint -- node /absolute/path/to/waypoint-mcp/dist/cli/main.js serve --db /absolute/path/to/waypoint.db
+claude mcp add taskpreset -- node /absolute/path/to/taskpreset-mcp/dist/cli/main.js serve --db /absolute/path/to/taskpreset.db
 ```
 
 For Claude Desktop JSON config, a step-by-step walkthrough with expected outputs and a seven-day
-trial checklist, see [docs/dogfooding.md](docs/dogfooding.md). Human validation with a real client
-is still **pending**.
+trial checklist, see [docs/dogfooding.md](docs/dogfooding.md). The author skipped the formal
+seven-day trial; the walkthrough is covered by an automated test
+(`tests/mcp/walkthrough.test.ts`).
 
 ## Tools
 

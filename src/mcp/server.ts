@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { App } from "../app.js";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import { itemDto, planDto } from "./dto.js";
 import { handler } from "./results.js";
 import {
@@ -193,7 +193,7 @@ export function createServer(
     handler("plan_day", (args) => {
       if (args.commit === true) {
         if (args.item_ids === undefined) {
-          throw new WaypointError("validation", "commit=true requires item_ids in plan order.");
+          throw new TaskPresetError("validation", "commit=true requires item_ids in plan order.");
         }
         const saved = app.plans.commit({
           date: args.date,
@@ -209,7 +209,7 @@ export function createServer(
         };
       }
       if (args.item_ids !== undefined || args.expected_revision !== undefined) {
-        throw new WaypointError(
+        throw new TaskPresetError(
           "validation",
           "item_ids and expected_revision are only used with commit=true; nothing was saved.",
         );

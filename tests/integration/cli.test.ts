@@ -12,7 +12,7 @@ function cli(...args: string[]) {
   return { stdout: result.stdout, stderr: result.stderr, code: result.status };
 }
 
-describe("waypoint CLI", () => {
+describe("taskpreset CLI", () => {
   it("prints help", () => {
     const run = cli("--help");
     expect(run.code).toBe(0);

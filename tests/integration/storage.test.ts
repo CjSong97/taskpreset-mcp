@@ -2,8 +2,13 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import Database from "better-sqlite3";
 import { describe, expect, it } from "vitest";
-import { defaultDataDir, resolveDbPath } from "../../src/config/paths.js";
-import { WaypointError } from "../../src/domain/errors.js";
+import {
+  defaultDataDir,
+  legacyDataDir,
+  resolveDbPath,
+  startupEnv,
+} from "../../src/config/paths.js";
+import { TaskPresetError } from "../../src/domain/errors.js";
 import { mapSqliteError } from "../../src/storage/database.js";
 import type { Migration } from "../../src/storage/migrate.js";
 import { MIGRATIONS } from "../../src/storage/migrations/index.js";
@@ -98,7 +103,7 @@ describe("SQLite store", () => {
         store.write(() => {
           insertItem(store, "first");
           insertItem(store, "second");
-          throw new WaypointError("validation", "boom");
+          throw new TaskPresetError("validation", "boom");
         }),
       ).toThrow("boom");
       expect(itemCount(store)).toBe(0);
@@ -116,13 +121,13 @@ describe("SQLite store", () => {
     expect(() => openStore({ path, now: NOW })).toThrow(/does not know/);
   });
 
-  it("refuses an existing SQLite file that is not a Waypoint store and leaves it untouched", () => {
+  it("refuses an existing SQLite file that is not a TaskPreset store and leaves it untouched", () => {
     const path = tempDbPath();
     const foreign = new Database(path);
     foreign.exec("CREATE TABLE notes (body TEXT)");
     foreign.close();
 
-    expect(() => openStore({ path, now: NOW })).toThrow(/not a Waypoint store/);
+    expect(() => openStore({ path, now: NOW })).toThrow(/not a TaskPreset store/);
     const db = new Database(path);
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
     db.close();
@@ -132,7 +137,7 @@ describe("SQLite store", () => {
   it("refuses a non-SQLite file", () => {
     const path = tempDbPath();
     writeFileSync(path, "this is not a database, just text that is long enough".repeat(10));
-    expect(() => openStore({ path, now: NOW })).toThrow(WaypointError);
+    expect(() => openStore({ path, now: NOW })).toThrow(TaskPresetError);
   });
 
   describe("preset binding", () => {
@@ -186,22 +191,36 @@ describe("SQLite store", () => {
     it("defaults to the OS user-data directory", () => {
       expect(
         defaultDataDir("win32", { LOCALAPPDATA: "C:\\Users\\u\\AppData\\Local" }, "C:\\Users\\u"),
-      ).toBe(join("C:\\Users\\u\\AppData\\Local", "Waypoint"));
+      ).toBe(join("C:\\Users\\u\\AppData\\Local", "TaskPreset"));
       expect(defaultDataDir("darwin", {}, "/Users/u")).toBe(
-        join("/Users/u", "Library", "Application Support", "Waypoint"),
+        join("/Users/u", "Library", "Application Support", "TaskPreset"),
       );
       expect(defaultDataDir("linux", {}, "/home/u")).toBe(
-        join("/home/u", ".local", "share", "waypoint"),
+        join("/home/u", ".local", "share", "taskpreset"),
       );
       expect(defaultDataDir("linux", { XDG_DATA_HOME: "/data" }, "/home/u")).toBe(
-        join("/data", "waypoint"),
+        join("/data", "taskpreset"),
       );
+    });
+
+    it("keeps using a store created under the pre-rename name", () => {
+      const current = join(defaultDataDir(), "taskpreset.db");
+      const legacy = join(legacyDataDir(), "waypoint.db");
+      expect(resolveDbPath(undefined, (p) => p === legacy)).toBe(legacy);
+      expect(resolveDbPath(undefined, (p) => p === legacy || p === current)).toBe(current);
+      expect(resolveDbPath(undefined, () => false)).toBe(current);
+    });
+
+    it("reads TASKPRESET_* settings, falling back to the pre-rename WAYPOINT_* names", () => {
+      expect(startupEnv("DB", { WAYPOINT_DB: "/old" })).toBe("/old");
+      expect(startupEnv("DB", { TASKPRESET_DB: "/new", WAYPOINT_DB: "/old" })).toBe("/new");
+      expect(startupEnv("PRESET", {})).toBeUndefined();
     });
   });
 
   it("maps SQLITE_BUSY to an actionable busy error", () => {
     const error = mapSqliteError(Object.assign(new Error("locked"), { code: "SQLITE_BUSY" }), "x");
-    expect(error).toBeInstanceOf(WaypointError);
-    expect((error as WaypointError).code).toBe("busy");
+    expect(error).toBeInstanceOf(TaskPresetError);
+    expect((error as TaskPresetError).code).toBe("busy");
   });
 });

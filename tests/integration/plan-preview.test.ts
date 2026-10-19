@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { WORKFLOWS } from "../fixtures/workflows.js";
-import { expectWaypointError, testApp } from "../support/app.js";
+import { expectTaskPresetError, testApp } from "../support/app.js";
 import { dumpDatabase } from "../support/dump.js";
 
 describe("plan_day preview", () => {
@@ -47,8 +47,8 @@ describe("plan_day preview", () => {
       s.midSoon.id,
     ]);
     expect(s.app.plans.preview({}).candidates).toHaveLength(5);
-    expectWaypointError(() => s.app.plans.preview({ maxItems: 0 }), "validation");
-    expectWaypointError(() => s.app.plans.preview({ maxItems: 21 }), "validation");
+    expectTaskPresetError(() => s.app.plans.preview({ maxItems: 0 }), "validation");
+    expectTaskPresetError(() => s.app.plans.preview({ maxItems: 21 }), "validation");
   });
 
   it("is stable for identical input and clock and writes nothing", () => {
@@ -65,8 +65,8 @@ describe("plan_day preview", () => {
     app.clock.set("2026-10-18T23:30:00.000Z"); // 00:30 BST on the 19th
     expect(app.plans.today()).toBe("2026-10-19");
     expect(app.plans.preview({}).date).toBe("2026-10-19");
-    expectWaypointError(() => app.plans.preview({ date: "2026-10-18" }), "validation");
-    expectWaypointError(() => app.plans.preview({ date: "2026-02-30" }), "validation");
+    expectTaskPresetError(() => app.plans.preview({ date: "2026-10-18" }), "validation");
+    expectTaskPresetError(() => app.plans.preview({ date: "2026-02-30" }), "validation");
   });
 
   it.each(WORKFLOWS)("suggests only executable work for $preset", (w) => {

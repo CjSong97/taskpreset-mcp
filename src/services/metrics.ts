@@ -1,4 +1,4 @@
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import { assertDateOnly, statusesIn } from "../domain/item.js";
 import type { Preset } from "../domain/preset.js";
 import { addDays, daysBetween, localDate, startOfLocalDay, type Clock } from "../domain/time.js";
@@ -59,9 +59,9 @@ export class MetricsService {
     assertDateOnly("from", from);
     assertDateOnly("to", to);
     const span = daysBetween(from, to) + 1;
-    if (span < 1) throw new WaypointError("validation", "from must be on or before to.");
+    if (span < 1) throw new TaskPresetError("validation", "from must be on or before to.");
     if (span > METRICS_MAX_RANGE_DAYS) {
-      throw new WaypointError(
+      throw new TaskPresetError(
         "validation",
         `The range may cover at most ${METRICS_MAX_RANGE_DAYS} days.`,
       );

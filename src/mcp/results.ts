@@ -1,5 +1,5 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { isWaypointError } from "../domain/errors.js";
+import { isTaskPresetError } from "../domain/errors.js";
 import { log } from "./log.js";
 
 export function ok(data: Record<string, unknown>): CallToolResult {
@@ -10,7 +10,7 @@ export function ok(data: Record<string, unknown>): CallToolResult {
 }
 
 export function fail(tool: string, error: unknown): CallToolResult {
-  if (isWaypointError(error)) {
+  if (isTaskPresetError(error)) {
     const body = {
       error: { code: error.code, message: error.message, ...(error.details ?? {}) },
     };

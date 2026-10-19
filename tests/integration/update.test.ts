@@ -2,7 +2,7 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { App } from "../../src/app.js";
-import { expectWaypointError, testApp } from "../support/app.js";
+import { expectTaskPresetError, testApp } from "../support/app.js";
 import { tempDir } from "../support/tmp.js";
 
 function snapshot(app: App, id: string) {
@@ -52,15 +52,15 @@ describe("update_item service", () => {
   it("rejects illegal transitions without writing", () => {
     const app = testApp();
     const task = app.items.capture({ type: "task", title: "T" }).item;
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.update({ id: task.id, status: "done" }),
       "invalid_transition",
     );
-    expectWaypointError(() => app.items.update({ id: task.id, status: "nope" }), "validation");
+    expectTaskPresetError(() => app.items.update({ id: task.id, status: "nope" }), "validation");
 
     app.items.update({ id: task.id, status: "cancelled" });
     const cancelled = snapshot(app, task.id);
-    const error = expectWaypointError(
+    const error = expectTaskPresetError(
       () => app.items.update({ id: task.id, status: "not_started", title: "Changed" }),
       "invalid_transition",
     );
@@ -72,11 +72,11 @@ describe("update_item service", () => {
     const app = testApp();
     const task = app.items.capture({ type: "task", title: "T" }).item;
     const done = app.items.complete(task.id).item;
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.update({ id: task.id, status: "in_progress" }),
       "invalid_transition",
     );
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.update({ id: task.id, status: "cancelled" }),
       "invalid_transition",
     );
@@ -98,11 +98,11 @@ describe("update_item service", () => {
     expect(app.items.update({ id: task.id, parentId: null }).parentId).toBeNull();
 
     const before = snapshot(app, project.id);
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.update({ id: project.id, parentId: goal.id }),
       "validation",
     );
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.update({ id: task.id, parentId: "00000000-0000-4000-8000-000000000000" }),
       "not_found",
     );
@@ -136,16 +136,16 @@ describe("update_item service", () => {
     const b = app.items.capture({ type: "area", title: "B", parentId: a.id }).item;
     const c = app.items.capture({ type: "area", title: "C", parentId: b.id }).item;
 
-    expectWaypointError(() => app.items.update({ id: a.id, parentId: c.id }), "validation");
-    expectWaypointError(() => app.items.update({ id: a.id, parentId: a.id }), "validation");
+    expectTaskPresetError(() => app.items.update({ id: a.id, parentId: c.id }), "validation");
+    expectTaskPresetError(() => app.items.update({ id: a.id, parentId: a.id }), "validation");
     expect(snapshot(app, a.id)?.parentId).toBeNull();
   });
 
   it("requires at least one change and an existing item", () => {
     const app = testApp();
     const task = app.items.capture({ type: "task", title: "T" }).item;
-    expectWaypointError(() => app.items.update({ id: task.id }), "validation");
-    expectWaypointError(
+    expectTaskPresetError(() => app.items.update({ id: task.id }), "validation");
+    expectTaskPresetError(
       () => app.items.update({ id: "00000000-0000-4000-8000-000000000000", title: "X" }),
       "not_found",
     );

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import { presetProblems, type Preset } from "../domain/preset.js";
 
 const KEY = /^[a-z][a-z0-9_]{0,31}$/;
@@ -41,7 +41,7 @@ export const DEFAULT_PRESET = "avatar-lite";
 
 const BUNDLED_DIR = fileURLToPath(new URL("../../presets/", import.meta.url));
 
-/** Parse and validate preset JSON. Throws WaypointError("config") with every problem found. */
+/** Parse and validate preset JSON. Throws TaskPresetError("config") with every problem found. */
 export function parsePreset(raw: unknown, source: string): Preset {
   const result = presetSchema.safeParse(raw);
   const problems = result.success
@@ -54,7 +54,7 @@ export function parsePreset(raw: unknown, source: string): Preset {
         return `${i.path.join(".") || "(root)"}: ${message}`;
       });
   if (!result.success || problems.length > 0) {
-    throw new WaypointError("config", `Invalid preset ${source}: ${problems.join("; ")}`, {
+    throw new TaskPresetError("config", `Invalid preset ${source}: ${problems.join("; ")}`, {
       problems,
     });
   }
@@ -72,7 +72,7 @@ export function loadPreset(reference: string): Preset {
   } else if (isAbsolute(reference) && reference.endsWith(".json")) {
     path = reference;
   } else {
-    throw new WaypointError(
+    throw new TaskPresetError(
       "config",
       `Unknown preset "${reference}". Use one of ${BUNDLED_PRESET_IDS.join(", ")} or an absolute path to a .json file.`,
     );
@@ -83,7 +83,7 @@ export function loadPreset(reference: string): Preset {
     raw = JSON.parse(readFileSync(path, "utf8"));
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
-    throw new WaypointError("config", `Could not read preset ${reference}: ${reason}`);
+    throw new TaskPresetError("config", `Could not read preset ${reference}: ${reason}`);
   }
   return parsePreset(raw, reference);
 }

@@ -1,5 +1,5 @@
 import { existsSync, statSync } from "node:fs";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import { openStore } from "../storage/store.js";
 
 export interface InitOptions {
@@ -11,7 +11,7 @@ export interface InitOptions {
 /** Create a new, empty store. Refuses to touch an existing file. */
 export function initStore(options: InitOptions): string[] {
   if (existsSync(options.path) && statSync(options.path).size > 0) {
-    throw new WaypointError(
+    throw new TaskPresetError(
       "config",
       `A file already exists at ${options.path}. init never modifies existing stores; run "doctor" to inspect it or choose another --db path.`,
     );
@@ -19,7 +19,7 @@ export function initStore(options: InitOptions): string[] {
   const store = openStore(options);
   try {
     return [
-      `Created Waypoint store at ${store.path}`,
+      `Created TaskPreset store at ${store.path}`,
       `  preset:   ${store.preset.id}@${store.preset.version} (${store.preset.name})`,
       `  timezone: ${store.timezone}`,
       `  schema:   version ${store.schemaVersion}`,

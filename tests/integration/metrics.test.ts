@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { METRIC_FIXTURES } from "../fixtures/metrics.js";
-import { expectWaypointError, testApp } from "../support/app.js";
+import { expectTaskPresetError, testApp } from "../support/app.js";
 import { runMetricFixture } from "../support/metrics-runner.js";
 
 const basic = METRIC_FIXTURES.filter((f) => f.name.startsWith("basic"));
@@ -48,12 +48,12 @@ describe("get_metrics service", () => {
 
   it("validates ranges", () => {
     const app = testApp();
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.metrics.get({ from: "2026-10-20", to: "2026-10-19" }),
       "validation",
     );
-    expectWaypointError(() => app.metrics.get({ from: "2026-02-30" }), "validation");
-    expectWaypointError(
+    expectTaskPresetError(() => app.metrics.get({ from: "2026-02-30" }), "validation");
+    expectTaskPresetError(
       () => app.metrics.get({ from: "2025-01-01", to: "2026-01-02" }),
       "validation",
     );

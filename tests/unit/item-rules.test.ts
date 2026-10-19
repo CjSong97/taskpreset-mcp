@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { loadPreset } from "../../src/config/presets.js";
-import { WaypointError } from "../../src/domain/errors.js";
+import { TaskPresetError } from "../../src/domain/errors.js";
 import { assertParentAllowed, normalizeTags, type Item } from "../../src/domain/item.js";
 import { isValidDateOnly } from "../../src/domain/time.js";
 
@@ -40,10 +40,10 @@ describe("normalizeTags", () => {
     expect(normalizeTags([" fire ", "fire", "water"])).toEqual(["fire", "water"]);
   });
   it("rejects empty and over-long tags and too many tags", () => {
-    expect(() => normalizeTags(["  "])).toThrow(WaypointError);
-    expect(() => normalizeTags(["x".repeat(41)])).toThrow(WaypointError);
+    expect(() => normalizeTags(["  "])).toThrow(TaskPresetError);
+    expect(() => normalizeTags(["x".repeat(41)])).toThrow(TaskPresetError);
     expect(() => normalizeTags(Array.from({ length: 21 }, (_, i) => `t${i}`))).toThrow(
-      WaypointError,
+      TaskPresetError,
     );
   });
 });

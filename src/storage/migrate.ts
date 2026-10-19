@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 
 export interface Migration {
   version: number;
@@ -36,9 +36,9 @@ export function runMigrations(
 
   const unknown = applied.filter((v) => !known.has(v));
   if (unknown.length > 0) {
-    throw new WaypointError(
+    throw new TaskPresetError(
       "storage",
-      `Store has schema version(s) ${unknown.join(", ")} that this Waypoint build does not know (latest ${latestKnown}). Upgrade Waypoint instead of opening this store with an older build.`,
+      `Store has schema version(s) ${unknown.join(", ")} that this TaskPreset build does not know (latest ${latestKnown}). Upgrade TaskPreset instead of opening this store with an older build.`,
     );
   }
 
@@ -56,7 +56,7 @@ export function runMigrations(
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
       const current = applied.at(-1) ?? 0;
-      throw new WaypointError(
+      throw new TaskPresetError(
         "storage",
         `Migration ${migration.version} (${migration.name}) failed and was rolled back; the store remains at schema version ${current}. The store was not modified or reset. Cause: ${reason}`,
       );

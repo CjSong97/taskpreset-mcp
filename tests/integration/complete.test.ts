@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expectWaypointError, testApp } from "../support/app.js";
+import { expectTaskPresetError, testApp } from "../support/app.js";
 
 describe("complete_item service", () => {
   it("sets the done status and completed_at atomically", () => {
@@ -34,13 +34,13 @@ describe("complete_item service", () => {
 
   it("rejects unknown and cancelled items without writing", () => {
     const app = testApp();
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.complete("00000000-0000-4000-8000-000000000000"),
       "not_found",
     );
     const task = app.items.capture({ type: "task", title: "T" }).item;
     app.store.db.prepare("UPDATE items SET status = 'cancelled' WHERE id = ?").run(task.id);
-    expectWaypointError(() => app.items.complete(task.id), "invalid_transition");
+    expectTaskPresetError(() => app.items.complete(task.id), "invalid_transition");
     const stored = app.items.query({ id: task.id }).items[0];
     expect(stored?.status).toBe("cancelled");
     expect(stored?.completedAt).toBeNull();
