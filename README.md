@@ -15,9 +15,8 @@ SQLite file you own. There is no cloud service, account, embedded LLM or API key
 - **Why not a markdown file?** A file cannot reject an invalid transition, keep saved plan
   revisions, or compute metrics you can trust. TaskPreset can.
 
-> Status: hobby project, MVP complete and covered by automated tests. Not published to npm. No
-> licence has been chosen yet, so all rights are reserved until one is added. See
-> [docs/tasks.md](docs/tasks.md).
+> Status: hobby project, MVP complete and covered by automated tests. Not published to npm.
+> MIT licensed. See [docs/tasks.md](docs/tasks.md).
 
 ## Requirements
 
@@ -146,3 +145,7 @@ npm run check:clean-install  # clone HEAD to a temp dir, npm ci, build, init, do
 ```
 
 See [CLAUDE.md](CLAUDE.md) for architecture boundaries and safety rules.
+
+## Licence
+
+[MIT](LICENSE). Copyright (c) 2026 CjSong97.

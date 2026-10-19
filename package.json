@@ -2,6 +2,7 @@
   "name": "taskpreset-mcp",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Configurable, local-first productivity MCP server backed by SQLite.",
   "type": "module",
   "engines": {
