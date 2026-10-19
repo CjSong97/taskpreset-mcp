@@ -1,0 +1,40 @@
+{
+  "id": "bujo-lite",
+  "version": "1.0.0",
+  "name": "Bullet-Journal-lite",
+  "description": "A limited, Bullet Journal-inspired log: tasks, events and notes are entries; open tasks are reviewed and migrated, scheduled for later or struck out as irrelevant. Tags can represent collections. It is not a complete Bullet Journal implementation (no daily, monthly or future logs, index or pages; a migrated task stays the same item instead of being re-written; events and notes share the task statuses).",
+  "tagLabel": "Collection",
+  "itemTypes": {
+    "task": {
+      "label": "Task",
+      "executable": true,
+      "parents": [],
+      "rootAllowed": true
+    },
+    "event": {
+      "label": "Event",
+      "executable": false,
+      "parents": [],
+      "rootAllowed": true
+    },
+    "note": {
+      "label": "Note",
+      "executable": false,
+      "parents": [],
+      "rootAllowed": true
+    }
+  },
+  "statuses": {
+    "open": { "label": "Open (bullet)", "category": "open" },
+    "migrated": { "label": "Migrated (>)", "category": "open" },
+    "scheduled": { "label": "Scheduled (<)", "category": "open" },
+    "done": { "label": "Done (X)", "category": "done" },
+    "irrelevant": { "label": "Irrelevant (struck out)", "category": "cancelled" }
+  },
+  "initialStatuses": ["open", "scheduled"],
+  "transitions": {
+    "open": ["migrated", "scheduled", "irrelevant"],
+    "migrated": ["open", "scheduled", "irrelevant"],
+    "scheduled": ["open", "migrated", "irrelevant"]
+  }
+}

@@ -24,6 +24,7 @@ actually in the repository.
 | 17  | Verify backup and restore safety             | G6        | Done                               |
 | 18  | Prepare real-client walkthrough & dogfooding | G6        | In progress — human checks pending |
 | 19  | Static HTML report and demo store            | Post-MVP  | Done                               |
+| 20  | Suggested preset templates (8 systems)       | Post-MVP  | Done                               |
 
 ## Post-MVP decisions (2026-10-19)
 
@@ -31,6 +32,7 @@ actually in the repository.
   checks were done by hand. Task 18's walkthrough remains available in
   [dogfooding.md](dogfooding.md) but is no longer a blocker.
 - Task 19 adds `report` and `demo` ([decision 0003](decisions/0003-static-report.md)).
+- Task 20 adds eight suggested presets under `presets/suggested/` (not bundled).
 - The name "Waypoint" collides with several projects, including a same-named MCP task tracker. A
   rename is recommended before any publication; see [docs/reports/naming.md](reports/naming.md).
 

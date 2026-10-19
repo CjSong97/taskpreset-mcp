@@ -1,0 +1,40 @@
+{
+  "id": "okr-lite",
+  "version": "1.0.0",
+  "name": "OKR-lite",
+  "description": "A limited OKR-inspired hierarchy: objectives contain key results, and supporting tasks can hang under either. Key results are achieved or not. Tags can represent the OKR cycle. It is not a complete OKR implementation (no numeric targets or 0.0-1.0 scoring, no committed/aspirational flag, no cycle dates, no check-ins). Supporting tasks are an addition, not part of OKR.",
+  "tagLabel": "Cycle",
+  "itemTypes": {
+    "objective": {
+      "label": "Objective",
+      "executable": false,
+      "parents": [],
+      "rootAllowed": true
+    },
+    "key_result": {
+      "label": "Key Result",
+      "executable": true,
+      "parents": ["objective"],
+      "rootAllowed": false
+    },
+    "task": {
+      "label": "Supporting task",
+      "executable": true,
+      "parents": ["key_result", "objective"],
+      "rootAllowed": true
+    }
+  },
+  "statuses": {
+    "draft": { "label": "Draft", "category": "open" },
+    "active": { "label": "Active", "category": "open" },
+    "at_risk": { "label": "At risk", "category": "open" },
+    "done": { "label": "Achieved", "category": "done" },
+    "dropped": { "label": "Dropped", "category": "cancelled" }
+  },
+  "initialStatuses": ["draft", "active"],
+  "transitions": {
+    "draft": ["active", "dropped"],
+    "active": ["draft", "at_risk", "dropped"],
+    "at_risk": ["active", "dropped"]
+  }
+}

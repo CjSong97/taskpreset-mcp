@@ -1,0 +1,37 @@
+{
+  "id": "moscow-lite",
+  "version": "1.0.0",
+  "name": "MoSCoW-lite",
+  "description": "A limited MoSCoW-style prioritisation: requirements inside a timebox are sorted into Must, Should, Could or Won't have this time. Tags can name the stakeholder. It is not a complete MoSCoW or DSDM implementation (no effort budget such as the 60-20-20 guideline, no timebox dates, and priority is a status, so a requirement has one MoSCoW class at a time).",
+  "tagLabel": "Stakeholder",
+  "itemTypes": {
+    "timebox": {
+      "label": "Timebox (release)",
+      "executable": false,
+      "parents": [],
+      "rootAllowed": true
+    },
+    "requirement": {
+      "label": "Requirement",
+      "executable": true,
+      "parents": ["timebox"],
+      "rootAllowed": true
+    }
+  },
+  "statuses": {
+    "proposed": { "label": "Proposed (not yet prioritised)", "category": "open" },
+    "must": { "label": "Must have", "category": "open" },
+    "should": { "label": "Should have", "category": "open" },
+    "could": { "label": "Could have", "category": "open" },
+    "done": { "label": "Done", "category": "done" },
+    "wont": { "label": "Won't have this time", "category": "cancelled" }
+  },
+  "initialStatuses": ["proposed", "must", "should", "could"],
+  "transitions": {
+    "proposed": ["must", "should", "could", "wont"],
+    "must": ["proposed", "should", "could", "wont"],
+    "should": ["proposed", "must", "could", "wont"],
+    "could": ["proposed", "must", "should", "wont"],
+    "wont": ["proposed", "must", "should", "could"]
+  }
+}

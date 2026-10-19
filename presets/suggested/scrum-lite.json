@@ -1,0 +1,36 @@
+{
+  "id": "scrum-lite",
+  "version": "1.0.0",
+  "name": "Scrum-lite",
+  "description": "A limited, Scrum-inspired backlog: Product Backlog Items sit in the Product Backlog, become ready for selection, are pulled into a Sprint Backlog and are done when they meet the Definition of Done. Product Goals group items; tags can name the sprint. It is not a complete Scrum implementation (no sprints with dates, Sprint Goals, events, roles, estimates or velocity).",
+  "tagLabel": "Sprint",
+  "itemTypes": {
+    "product_goal": {
+      "label": "Product Goal",
+      "executable": false,
+      "parents": [],
+      "rootAllowed": true
+    },
+    "pbi": {
+      "label": "Product Backlog Item",
+      "executable": true,
+      "parents": ["product_goal"],
+      "rootAllowed": true
+    }
+  },
+  "statuses": {
+    "product_backlog": { "label": "Product Backlog", "category": "open" },
+    "refined": { "label": "Ready for selection", "category": "open" },
+    "sprint_backlog": { "label": "Sprint Backlog", "category": "open" },
+    "in_progress": { "label": "In progress", "category": "open" },
+    "done": { "label": "Done (meets Definition of Done)", "category": "done" },
+    "removed": { "label": "Removed", "category": "cancelled" }
+  },
+  "initialStatuses": ["product_backlog", "refined"],
+  "transitions": {
+    "product_backlog": ["refined", "sprint_backlog", "removed"],
+    "refined": ["product_backlog", "sprint_backlog", "removed"],
+    "sprint_backlog": ["refined", "product_backlog", "in_progress", "removed"],
+    "in_progress": ["sprint_backlog", "product_backlog", "removed"]
+  }
+}
