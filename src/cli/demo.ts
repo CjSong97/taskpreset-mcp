@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, statSync } from "node:fs";
 import { dirname, isAbsolute, normalize } from "node:path";
 import { openApp } from "../app.js";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import { statusesIn } from "../domain/item.js";
 import { addDays, type Clock } from "../domain/time.js";
 
@@ -123,16 +123,16 @@ export interface DemoOptions {
  */
 export function seedDemo(options: DemoOptions): string[] {
   if (options.out === undefined || !isAbsolute(options.out)) {
-    throw new WaypointError("config", "demo requires --out with an absolute .db file path.");
+    throw new TaskPresetError("config", "demo requires --out with an absolute .db file path.");
   }
   const out = normalize(options.out);
   if (existsSync(out) && statSync(out).size > 0) {
-    throw new WaypointError("config", `${out} already exists; demo only creates new stores.`);
+    throw new TaskPresetError("config", `${out} already exists; demo only creates new stores.`);
   }
   const presetId = options.preset ?? "avatar-lite";
   const shape = SHAPES.find((s) => s.presetId === presetId);
   if (shape === undefined) {
-    throw new WaypointError(
+    throw new TaskPresetError(
       "config",
       `demo supports ${SHAPES.map((s) => s.presetId).join(" and ")}, not "${presetId}".`,
     );

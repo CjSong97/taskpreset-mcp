@@ -1,4 +1,4 @@
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import {
   assertDateOnly,
   isExecutable,
@@ -67,7 +67,7 @@ export class PlanService {
     if (date === undefined) return today;
     assertDateOnly("date", date);
     if (date < today) {
-      throw new WaypointError(
+      throw new TaskPresetError(
         "validation",
         `${date} is in the past (today is ${today} in ${this.deps.timezone}); past-day plans cannot be changed.`,
       );
@@ -94,7 +94,7 @@ export class PlanService {
     const date = this.planDate(input.date);
     const maxItems = input.maxItems ?? LIMITS.planPreviewDefault;
     if (!Number.isInteger(maxItems) || maxItems < 1 || maxItems > LIMITS.planMaxItems) {
-      throw new WaypointError(
+      throw new TaskPresetError(
         "validation",
         `max_items must be between 1 and ${LIMITS.planMaxItems}.`,
       );
@@ -129,11 +129,11 @@ export class PlanService {
     const { preset, items, plans, tx, clock, newId } = this.deps;
     const date = this.planDate(input.date);
     if (input.itemIds.length > LIMITS.planMaxItems) {
-      throw new WaypointError("validation", `A plan holds at most ${LIMITS.planMaxItems} items.`);
+      throw new TaskPresetError("validation", `A plan holds at most ${LIMITS.planMaxItems} items.`);
     }
     const duplicates = input.itemIds.filter((id, i) => input.itemIds.indexOf(id) !== i);
     if (duplicates.length > 0) {
-      throw new WaypointError("validation", "item_ids must not contain duplicates.", {
+      throw new TaskPresetError("validation", "item_ids must not contain duplicates.", {
         duplicates: [...new Set(duplicates)],
       });
     }
@@ -142,7 +142,7 @@ export class PlanService {
       const existing = plans.getByDate(date);
       if (existing) {
         if (input.expectedRevision !== existing.revision) {
-          throw new WaypointError(
+          throw new TaskPresetError(
             "conflict",
             input.expectedRevision === undefined
               ? `A plan for ${date} already exists at revision ${existing.revision}; pass expected_revision to replace it.`
@@ -151,7 +151,7 @@ export class PlanService {
           );
         }
       } else if (input.expectedRevision !== undefined && input.expectedRevision !== 0) {
-        throw new WaypointError(
+        throw new TaskPresetError(
           "conflict",
           `No plan exists for ${date}; omit expected_revision (or pass 0) to create one.`,
           { current_revision: 0 },
@@ -171,10 +171,10 @@ export class PlanService {
         if (!isExecutable(preset, item.type) || (!open && !alreadyPlanned)) ineligible.push(id);
       }
       if (unknown.length > 0) {
-        throw new WaypointError("not_found", "Some item_ids do not exist.", { unknown });
+        throw new TaskPresetError("not_found", "Some item_ids do not exist.", { unknown });
       }
       if (ineligible.length > 0) {
-        throw new WaypointError(
+        throw new TaskPresetError(
           "ineligible",
           "Plans may only include open executable work (or items already in this plan).",
           { ineligible },
@@ -209,7 +209,7 @@ export class PlanService {
   private withItems(plan: DayPlan): PlanWithItems {
     const members = plan.itemIds.map((id) => {
       const item = this.deps.items.get(id);
-      if (!item) throw new WaypointError("storage", `Plan member ${id} is missing.`);
+      if (!item) throw new TaskPresetError("storage", `Plan member ${id} is missing.`);
       return item;
     });
     return { plan, items: members };

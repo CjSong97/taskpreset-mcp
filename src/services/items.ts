@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { canonicalJson } from "../config/canonical.js";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import {
   assertDateOnly,
   assertItemType,
@@ -99,7 +99,7 @@ function decodeCursor(cursor: string): ItemCursor {
   } catch {
     // fall through
   }
-  throw new WaypointError("validation", "cursor is invalid; pass next_cursor from a prior page.");
+  throw new TaskPresetError("validation", "cursor is invalid; pass next_cursor from a prior page.");
 }
 
 export class ItemService {
@@ -110,12 +110,12 @@ export class ItemService {
     assertItemType(preset, input.type);
 
     const title = input.title.trim();
-    if (title.length === 0) throw new WaypointError("validation", "title must not be empty.");
+    if (title.length === 0) throw new TaskPresetError("validation", "title must not be empty.");
     const description = input.description?.trim() || null;
     const status = input.status ?? preset.initialStatuses[0] ?? "";
     statusCategory(preset, status);
     if (!preset.initialStatuses.includes(status)) {
-      throw new WaypointError("validation", `Items cannot be created with status "${status}".`, {
+      throw new TaskPresetError("validation", `Items cannot be created with status "${status}".`, {
         allowed: preset.initialStatuses,
       });
     }
@@ -140,7 +140,7 @@ export class ItemService {
         const previous = items.findByRequestId(input.requestId);
         if (previous) {
           if (previous.fingerprint !== fingerprint) {
-            throw new WaypointError(
+            throw new TaskPresetError(
               "conflict",
               "request_id was already used for a different capture. Use a new request_id for new work.",
               { item_id: previous.item.id },
@@ -154,7 +154,7 @@ export class ItemService {
       if (normalized.parentId !== null) {
         parent = items.get(normalized.parentId);
         if (!parent) {
-          throw new WaypointError(
+          throw new TaskPresetError(
             "not_found",
             `Parent item ${normalized.parentId} does not exist.`,
           );
@@ -185,7 +185,7 @@ export class ItemService {
     if (input.dueFrom !== undefined) assertDateOnly("due_from", input.dueFrom);
     if (input.dueTo !== undefined) assertDateOnly("due_to", input.dueTo);
     if (input.parentId !== undefined && input.rootOnly === true) {
-      throw new WaypointError("validation", "Use either parent_id or root_only, not both.");
+      throw new TaskPresetError("validation", "Use either parent_id or root_only, not both.");
     }
 
     let statuses = input.statuses;
@@ -209,7 +209,7 @@ export class ItemService {
 
     return tx.read(() => {
       if (input.id !== undefined && after === undefined && !items.get(input.id)) {
-        throw new WaypointError("not_found", `Item ${input.id} does not exist.`);
+        throw new TaskPresetError("not_found", `Item ${input.id} does not exist.`);
       }
       // Fetch one extra row to learn whether another page exists.
       const page = items.query(filter, limit + 1, after);
@@ -232,11 +232,11 @@ export class ItemService {
     const done = doneStatus(preset);
     return tx.write(() => {
       const item = items.get(id);
-      if (!item) throw new WaypointError("not_found", `Item ${id} does not exist.`);
+      if (!item) throw new TaskPresetError("not_found", `Item ${id} does not exist.`);
       const category = statusCategory(preset, item.status);
       if (category === "done") return { item, alreadyCompleted: true };
       if (category === "cancelled") {
-        throw new WaypointError(
+        throw new TaskPresetError(
           "invalid_transition",
           `Item ${id} is cancelled and cannot be completed.`,
         );
@@ -257,18 +257,18 @@ export class ItemService {
     const { preset, items, tx, clock } = this.deps;
     const changes = Object.entries(input).filter(([k, v]) => k !== "id" && v !== undefined);
     if (changes.length === 0) {
-      throw new WaypointError("validation", "Provide at least one field to change.");
+      throw new TaskPresetError("validation", "Provide at least one field to change.");
     }
 
     return tx.write(() => {
       const current = items.get(input.id);
-      if (!current) throw new WaypointError("not_found", `Item ${input.id} does not exist.`);
+      if (!current) throw new TaskPresetError("not_found", `Item ${input.id} does not exist.`);
       const next: Item = { ...current };
 
       if (input.title !== undefined) {
         next.title = input.title.trim();
         if (next.title.length === 0) {
-          throw new WaypointError("validation", "title must not be empty.");
+          throw new TaskPresetError("validation", "title must not be empty.");
         }
       }
       if (input.description !== undefined) next.description = input.description?.trim() || null;
@@ -283,20 +283,20 @@ export class ItemService {
         const from = statusCategory(preset, current.status);
         const to = statusCategory(preset, input.status);
         if (to === "done") {
-          throw new WaypointError(
+          throw new TaskPresetError(
             "invalid_transition",
             "Use complete_item to mark work done; it records the completion time.",
           );
         }
         if (from === "done") {
-          throw new WaypointError(
+          throw new TaskPresetError(
             "invalid_transition",
             "Completed work cannot be reopened or moved out of done.",
           );
         }
         const allowed = preset.transitions[current.status] ?? [];
         if (!allowed.includes(input.status)) {
-          throw new WaypointError(
+          throw new TaskPresetError(
             "invalid_transition",
             `Cannot move from ${current.status} to ${input.status}.`,
             { allowed },
@@ -310,7 +310,7 @@ export class ItemService {
         if (input.parentId !== null) {
           parent = items.get(input.parentId);
           if (!parent) {
-            throw new WaypointError("not_found", `Parent item ${input.parentId} does not exist.`);
+            throw new TaskPresetError("not_found", `Parent item ${input.parentId} does not exist.`);
           }
         }
         const ancestors = parent ? items.ancestorIds(parent.id) : [];

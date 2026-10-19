@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expectWaypointError, testApp } from "../support/app.js";
+import { expectTaskPresetError, testApp } from "../support/app.js";
 import { dumpDatabase } from "../support/dump.js";
 
 function seed() {
@@ -49,13 +49,13 @@ describe("committing day plans", () => {
     app.items.update({ id: cancelled.id, status: "cancelled" });
     const before = dumpDatabase(app.store.db);
 
-    expectWaypointError(() => app.plans.commit({ itemIds: [a.id, a.id] }), "validation");
-    const unknown = expectWaypointError(
+    expectTaskPresetError(() => app.plans.commit({ itemIds: [a.id, a.id] }), "validation");
+    const unknown = expectTaskPresetError(
       () => app.plans.commit({ itemIds: [a.id, "00000000-0000-4000-8000-000000000000"] }),
       "not_found",
     );
     expect(unknown.details).toEqual({ unknown: ["00000000-0000-4000-8000-000000000000"] });
-    const ineligible = expectWaypointError(
+    const ineligible = expectTaskPresetError(
       () => app.plans.commit({ itemIds: [b.id, project.id, done.id, cancelled.id] }),
       "ineligible",
     );
@@ -74,7 +74,7 @@ describe("committing day plans", () => {
     expect(revised.plan.itemIds).toEqual([b.id, a.id]);
 
     // c is done but was never in the plan, so it cannot be added now.
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.plans.commit({ itemIds: [b.id, c.id], expectedRevision: 2 }),
       "ineligible",
     );
@@ -92,6 +92,6 @@ describe("committing day plans", () => {
       { length: 21 },
       (_, i) => app.items.capture({ type: "task", title: `T${i}` }).item.id,
     );
-    expectWaypointError(() => app.plans.commit({ itemIds: ids }), "validation");
+    expectTaskPresetError(() => app.plans.commit({ itemIds: ids }), "validation");
   });
 });

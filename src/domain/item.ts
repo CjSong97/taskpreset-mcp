@@ -1,4 +1,4 @@
-import { WaypointError } from "./errors.js";
+import { TaskPresetError } from "./errors.js";
 import { LIMITS } from "./limits.js";
 import type { Preset, StatusCategory } from "./preset.js";
 import { isValidDateOnly } from "./time.js";
@@ -21,7 +21,7 @@ export interface Item {
 export function statusCategory(preset: Preset, status: string): StatusCategory {
   const definition = preset.statuses[status];
   if (!definition) {
-    throw new WaypointError("validation", `Unknown status "${status}".`, {
+    throw new TaskPresetError("validation", `Unknown status "${status}".`, {
       allowed: Object.keys(preset.statuses),
     });
   }
@@ -36,13 +36,13 @@ export function statusesIn(preset: Preset, category: StatusCategory): string[] {
 
 export function doneStatus(preset: Preset): string {
   const [done] = statusesIn(preset, "done");
-  if (done === undefined) throw new WaypointError("config", "Preset defines no done status.");
+  if (done === undefined) throw new TaskPresetError("config", "Preset defines no done status.");
   return done;
 }
 
 export function assertItemType(preset: Preset, type: string): void {
   if (!(type in preset.itemTypes)) {
-    throw new WaypointError("validation", `Unknown item type "${type}".`, {
+    throw new TaskPresetError("validation", `Unknown item type "${type}".`, {
       allowed: Object.keys(preset.itemTypes),
     });
   }
@@ -57,9 +57,9 @@ export function normalizeTags(tags: readonly string[]): string[] {
   const result: string[] = [];
   for (const raw of tags) {
     const tag = raw.trim();
-    if (tag.length === 0) throw new WaypointError("validation", "Tags must not be empty.");
+    if (tag.length === 0) throw new TaskPresetError("validation", "Tags must not be empty.");
     if (tag.length > LIMITS.tagMaxLength) {
-      throw new WaypointError(
+      throw new TaskPresetError(
         "validation",
         `Tags must be at most ${LIMITS.tagMaxLength} characters.`,
       );
@@ -67,14 +67,14 @@ export function normalizeTags(tags: readonly string[]): string[] {
     if (!result.includes(tag)) result.push(tag);
   }
   if (result.length > LIMITS.tagsMax) {
-    throw new WaypointError("validation", `At most ${LIMITS.tagsMax} tags are allowed.`);
+    throw new TaskPresetError("validation", `At most ${LIMITS.tagsMax} tags are allowed.`);
   }
   return result;
 }
 
 export function assertDateOnly(field: string, value: string): void {
   if (!isValidDateOnly(value)) {
-    throw new WaypointError("validation", `${field} must be a real calendar date as YYYY-MM-DD.`);
+    throw new TaskPresetError("validation", `${field} must be a real calendar date as YYYY-MM-DD.`);
   }
 }
 
@@ -95,7 +95,7 @@ export function assertParentAllowed(
   }
   if (parent === undefined) {
     if (!definition.rootAllowed) {
-      throw new WaypointError(
+      throw new TaskPresetError(
         "validation",
         `A ${item.type} must have a parent of type ${definition.parents.join(" or ")}.`,
       );
@@ -103,13 +103,13 @@ export function assertParentAllowed(
     return;
   }
   if (!definition.parents.includes(parent.type)) {
-    throw new WaypointError(
+    throw new TaskPresetError(
       "validation",
       `A ${item.type} cannot be placed under a ${parent.type}.`,
       { allowedParentTypes: definition.parents },
     );
   }
   if (item.id !== undefined && (parent.id === item.id || ancestorsOfParent.includes(item.id))) {
-    throw new WaypointError("validation", "That parent would create a cycle.");
+    throw new TaskPresetError("validation", "That parent would create a cycle.");
   }
 }

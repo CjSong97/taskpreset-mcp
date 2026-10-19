@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, statSync } from "node:fs";
 import { dirname } from "node:path";
 import Database from "better-sqlite3";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 
 export const BUSY_TIMEOUT_MS = 5000;
 
@@ -12,8 +12,8 @@ export interface OpenedDatabase {
 }
 
 /**
- * Open a Waypoint SQLite file with foreign keys, WAL and a bounded busy timeout. Creates the
- * parent directory for a new store. Refuses non-empty files that are not Waypoint stores so
+ * Open a TaskPreset SQLite file with foreign keys, WAL and a bounded busy timeout. Creates the
+ * parent directory for a new store. Refuses non-empty files that are not TaskPreset stores so
  * migrations are never applied to someone else's database.
  */
 export function openDatabase(path: string): OpenedDatabase {
@@ -38,31 +38,31 @@ export function openDatabase(path: string): OpenedDatabase {
       .get();
     if (marker === undefined) {
       db.close();
-      throw new WaypointError(
+      throw new TaskPresetError(
         "config",
-        `${path} is an existing SQLite database but not a Waypoint store. Choose a different path.`,
+        `${path} is an existing SQLite database but not a TaskPreset store. Choose a different path.`,
       );
     }
   }
   return { db, created: !existed };
 }
 
-/** Convert better-sqlite3 errors into WaypointErrors with actionable messages. */
+/** Convert better-sqlite3 errors into TaskPresetErrors with actionable messages. */
 export function mapSqliteError(error: unknown, context: string): Error {
-  if (error instanceof WaypointError) return error;
+  if (error instanceof TaskPresetError) return error;
   const code = (error as { code?: unknown }).code;
   if (code === "SQLITE_BUSY" || code === "SQLITE_LOCKED") {
-    return new WaypointError(
+    return new TaskPresetError(
       "busy",
       "The store is busy because another client is writing. Retry the operation shortly.",
     );
   }
   if (code === "SQLITE_NOTADB") {
-    return new WaypointError("config", `${context}: the file is not a SQLite database.`);
+    return new TaskPresetError("config", `${context}: the file is not a SQLite database.`);
   }
   if (typeof code === "string" && code.startsWith("SQLITE_")) {
     const message = error instanceof Error ? error.message : String(error);
-    return new WaypointError("storage", `${context}: ${message}`);
+    return new TaskPresetError("storage", `${context}: ${message}`);
   }
   // Not a database error (e.g. a programming bug): surface it unchanged.
   return error instanceof Error ? error : new Error(String(error));

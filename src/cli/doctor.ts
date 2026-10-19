@@ -2,7 +2,7 @@ import { existsSync, statSync } from "node:fs";
 import Database from "better-sqlite3";
 import { canonicalJson } from "../config/canonical.js";
 import { loadPreset } from "../config/presets.js";
-import { isWaypointError } from "../domain/errors.js";
+import { isTaskPresetError } from "../domain/errors.js";
 import { MIGRATIONS } from "../storage/migrations/index.js";
 
 export interface Check {
@@ -28,12 +28,12 @@ function nodeCheck(version: string): Check {
     label: "Node.js",
     detail: ok
       ? version
-      : `${version}; Waypoint requires Node ${REQUIRED_NODE_MAJOR}.${REQUIRED_NODE_MINOR}+ (see .nvmrc)`,
+      : `${version}; TaskPreset requires Node ${REQUIRED_NODE_MAJOR}.${REQUIRED_NODE_MINOR}+ (see .nvmrc)`,
   };
 }
 
 function message(error: unknown): string {
-  return isWaypointError(error) || error instanceof Error ? error.message : String(error);
+  return isTaskPresetError(error) || error instanceof Error ? error.message : String(error);
 }
 
 /**
@@ -89,7 +89,7 @@ export function runDoctor(options: DoctorOptions): Check[] {
       db?.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(table) !==
       undefined;
     if (!has("schema_migrations") || !has("app_metadata")) {
-      checks.push({ ok: false, label: "Store", detail: "file is not a Waypoint store" });
+      checks.push({ ok: false, label: "Store", detail: "file is not a TaskPreset store" });
       return checks;
     }
 
@@ -113,7 +113,7 @@ export function runDoctor(options: DoctorOptions): Check[] {
           ? `version ${current} (current)`
           : current < latest
             ? `version ${current}; serve will migrate to ${latest}`
-            : `version ${current} is newer than this build (${latest}); upgrade Waypoint`,
+            : `version ${current} is newer than this build (${latest}); upgrade TaskPreset`,
     });
 
     const metadata = Object.fromEntries(

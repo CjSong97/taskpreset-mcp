@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { BUNDLED_PRESET_IDS, loadPreset, parsePreset } from "../../src/config/presets.js";
-import { WaypointError } from "../../src/domain/errors.js";
+import { TaskPresetError } from "../../src/domain/errors.js";
 
 type Json = Record<string, unknown>;
 
@@ -17,7 +17,7 @@ function problemsFor(mutate: (preset: Json) => void): string[] {
   try {
     parsePreset(preset, "test");
   } catch (error) {
-    if (error instanceof WaypointError && error.code === "config") {
+    if (error instanceof TaskPresetError && error.code === "config") {
       return error.details?.problems as string[];
     }
     throw error;

@@ -26,7 +26,7 @@ export async function connect(args: string[] = []): Promise<Session> {
   transport.stderr?.on("data", (chunk: Buffer) => {
     stderr += chunk.toString("utf8");
   });
-  const client = new Client({ name: "waypoint-test-client", version: "0.0.0" });
+  const client = new Client({ name: "taskpreset-test-client", version: "0.0.0" });
   const protocolErrors: Error[] = [];
   client.onerror = (error) => {
     protocolErrors.push(error);

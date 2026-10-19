@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expectWaypointError, testApp } from "../support/app.js";
+import { expectTaskPresetError, testApp } from "../support/app.js";
 import { dumpDatabase } from "../support/dump.js";
 
 function seed() {
@@ -11,7 +11,7 @@ function seed() {
 describe("plan revisions", () => {
   it("rejects stale, missing and spurious expected revisions without changes", () => {
     const { app, ids } = seed();
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.plans.commit({ itemIds: [ids[0]], expectedRevision: 3 }),
       "conflict",
     );
@@ -19,12 +19,12 @@ describe("plan revisions", () => {
     app.plans.commit({ itemIds: [ids[1]], expectedRevision: 1 });
     const before = dumpDatabase(app.store.db);
 
-    const stale = expectWaypointError(
+    const stale = expectTaskPresetError(
       () => app.plans.commit({ itemIds: [ids[2]], expectedRevision: 1 }),
       "conflict",
     );
     expect(stale.details).toEqual({ current_revision: 2 });
-    expectWaypointError(() => app.plans.commit({ itemIds: [ids[2]] }), "conflict");
+    expectTaskPresetError(() => app.plans.commit({ itemIds: [ids[2]] }), "conflict");
     expect(dumpDatabase(app.store.db)).toEqual(before);
     expect(app.plans.get()?.plan).toMatchObject({ revision: 2, itemIds: [ids[1]] });
   });
@@ -51,7 +51,7 @@ describe("plan date boundaries", () => {
     app.clock.set("2026-10-18T23:00:00.000Z"); // 00:00 BST on the 19th
     const before = dumpDatabase(app.store.db);
 
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.plans.commit({ date: "2026-10-18", itemIds: [ids[2]], expectedRevision: 1 }),
       "validation",
     );
@@ -65,12 +65,12 @@ describe("plan date boundaries", () => {
     app.plans.commit({ itemIds: [ids[0]] });
     const before = dumpDatabase(app.store.db);
     for (const date of ["2026-10-32", "2026-02-29", "18-10-2026", "2026-10-18T00:00:00Z"]) {
-      expectWaypointError(
+      expectTaskPresetError(
         () => app.plans.commit({ date, itemIds: [ids[1]], expectedRevision: 1 }),
         "validation",
       );
     }
-    expectWaypointError(() => app.plans.get("not-a-date"), "validation");
+    expectTaskPresetError(() => app.plans.get("not-a-date"), "validation");
     expect(dumpDatabase(app.store.db)).toEqual(before);
   });
 

@@ -2,7 +2,7 @@
 
 ## Problem
 
-AI clients can reason about work, but they need a reliable place to keep it. Waypoint gives an MCP
+AI clients can reason about work, but they need a reliable place to keep it. TaskPreset gives an MCP
 client validated operations over persistent, user-owned data, configured to a chosen productivity
 system.
 
@@ -43,7 +43,7 @@ Both presets run on the same engine; the engine never checks a preset ID. Use a 
   (executable, under a project or goal, or root). Tasks are labelled "Task (Quest)" so a client
   may present them as quests.
 - Statuses: `not_started`, `in_progress` (open), `done`, `cancelled`.
-- Tags are labelled **Element**; Waypoint stores them as plain tags and attaches no Element
+- Tags are labelled **Element**; TaskPreset stores them as plain tags and attaches no Element
   semantics.
 - Limits: no Seasons/Books/Chapters/Episodes hierarchy, XP, levels or reviews. It does not
   reproduce the full Avatar methodology.

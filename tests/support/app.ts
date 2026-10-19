@@ -1,5 +1,5 @@
 import { openApp, type App } from "../../src/app.js";
-import { WaypointError, type WaypointErrorCode } from "../../src/domain/errors.js";
+import { TaskPresetError, type TaskPresetErrorCode } from "../../src/domain/errors.js";
 import { testClock, type TestClock } from "./clock.js";
 import { tempDbPath } from "./tmp.js";
 import { afterEach } from "vitest";
@@ -21,18 +21,21 @@ export function testApp(
   return Object.assign(app, { clock, path });
 }
 
-/** Assert that `fn` throws a WaypointError with the given code; returns it. */
-export function expectWaypointError(fn: () => unknown, code: WaypointErrorCode): WaypointError {
+/** Assert that `fn` throws a TaskPresetError with the given code; returns it. */
+export function expectTaskPresetError(
+  fn: () => unknown,
+  code: TaskPresetErrorCode,
+): TaskPresetError {
   try {
     fn();
   } catch (error) {
-    if (error instanceof WaypointError && error.code === code) return error;
+    if (error instanceof TaskPresetError && error.code === code) return error;
     throw new Error(
-      `Expected WaypointError(${code}) but got ${error instanceof WaypointError ? `WaypointError(${error.code}): ${error.message}` : String(error)}`,
+      `Expected TaskPresetError(${code}) but got ${error instanceof TaskPresetError ? `TaskPresetError(${error.code}): ${error.message}` : String(error)}`,
       { cause: error },
     );
   }
-  throw new Error(`Expected WaypointError(${code}) but nothing was thrown`);
+  throw new Error(`Expected TaskPresetError(${code}) but nothing was thrown`);
 }
 
 export function countItems(app: App): number {

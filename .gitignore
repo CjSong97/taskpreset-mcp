@@ -18,14 +18,14 @@ backups/
 data/
 
 # Generated reports contain item titles — never commit them
-waypoint-report*.html
+taskpreset-report*.html
 *.report.html
 
 # Personal configuration and secrets
 .env
 .env.*
 !.env.example
-waypoint.config.json
+taskpreset.config.json
 *.local.json
 
 # Logs

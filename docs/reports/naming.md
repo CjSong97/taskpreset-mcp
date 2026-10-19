@@ -1,5 +1,9 @@
 # Naming and prior-art check
 
+> **Outcome (2026-10-19):** the owner chose **TaskPreset** (`taskpreset-mcp`) from the round-two
+> shortlist and waived the trademark search because this is a hobby project. The project was
+> renamed from "Waypoint"; the text below keeps the old name where it describes the research.
+
 Date: 2026-10-19. Sources: npm registry, PyPI, GitHub (API and search), the official MCP registry
 and web search. PulseMCP, Glama, mcp.so and Smithery could not be queried directly, so registry
 coverage is incomplete. Star counts are from 2026-10-19 and change quickly.

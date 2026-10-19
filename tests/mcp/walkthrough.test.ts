@@ -22,7 +22,7 @@ describe("documented walkthrough", () => {
         (
           await callOk(session, "capture_item", {
             type: "project",
-            title: "Waypoint trial",
+            title: "TaskPreset trial",
             request_id: "walkthrough-project",
           })
         ).item as { id: string }

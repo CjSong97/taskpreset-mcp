@@ -1,9 +1,9 @@
 # Suggested presets
 
 Eight starter templates for common productivity systems. They are **not bundled**: they are not in
-`BUNDLED_PRESET_IDS`, so Waypoint never loads them unless you point at one by absolute path.
+`BUNDLED_PRESET_IDS`, so TaskPreset never loads them unless you point at one by absolute path.
 
-Each file is a **limited interpretation**, not an implementation, of the named system. A Waypoint
+Each file is a **limited interpretation**, not an implementation, of the named system. A TaskPreset
 preset can only define item types (label, executable, allowed parents, root allowed), statuses
 (open, done or cancelled), initial statuses and permitted transitions. It has no concept of
 work-in-progress limits, estimates, recurrence, cycle dates, scoring, notes or files. Where a
@@ -55,9 +55,9 @@ gaps, for example a priority per Eisenhower or MoSCoW item, but no template reli
 | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | Eat the Frog, Ivy Lee method, 1-3-5 rule, Rule of 3 (Getting Results the Agile Way, J.D. Meier) | Plan-size habits: they limit how many items go in a day's plan, not how items move through states. Use plans, not presets. |
 | Zen to Done (Leo Babauta)                                                                       | Ten habits; its core (collect, process, plan, do) has the same shape as `gtd-lite`.                                        |
-| Time blocking                                                                                   | Scheduling technique, not a state machine. Waypoint has no time-of-day model.                                              |
+| Time blocking                                                                                   | Scheduling technique, not a state machine. TaskPreset has no time-of-day model.                                            |
 | Pomodoro                                                                                        | A timer technique; no item states.                                                                                         |
-| Zettelkasten                                                                                    | A note-linking system; Waypoint stores no notes or links between items.                                                    |
+| Zettelkasten                                                                                    | A note-linking system; TaskPreset stores no notes or links between items.                                                  |
 | Habit trackers ("don't break the chain")                                                        | Need recurrence, which presets cannot express.                                                                             |
 
 ## Usage
@@ -69,7 +69,7 @@ node dist/cli/main.js init --db <absolute path to new .db> --preset <absolute pa
 node dist/cli/main.js doctor --db <same db path> --preset <same json path>
 ```
 
-For the MCP server, set `WAYPOINT_DB` and `WAYPOINT_PRESET` to the same absolute paths.
+For the MCP server, set `TASKPRESET_DB` and `TASKPRESET_PRESET` to the same absolute paths.
 
 **A store is bound to its preset forever.** The first open records the preset snapshot, and later
 opens with an incompatible preset are refused. Use a new `--db` for each system. To check a file

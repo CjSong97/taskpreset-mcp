@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, statSync } from "node:fs";
 import { dirname, isAbsolute, normalize } from "node:path";
 import Database from "better-sqlite3";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 
 export interface BackupOptions {
   source: string;
@@ -34,17 +34,17 @@ function counts(db: Database.Database) {
 export function backupStore(options: BackupOptions): string[] {
   const { source } = options;
   if (options.out === undefined || !isAbsolute(options.out)) {
-    throw new WaypointError("config", "backup requires --out with an absolute file path.");
+    throw new TaskPresetError("config", "backup requires --out with an absolute file path.");
   }
   const out = normalize(options.out);
   if (out === normalize(source)) {
-    throw new WaypointError("config", "--out must differ from the store path.");
+    throw new TaskPresetError("config", "--out must differ from the store path.");
   }
   if (existsSync(out)) {
-    throw new WaypointError("config", `${out} already exists; backups never overwrite files.`);
+    throw new TaskPresetError("config", `${out} already exists; backups never overwrite files.`);
   }
   if (!existsSync(source) || statSync(source).size === 0) {
-    throw new WaypointError("config", `No store at ${source}.`);
+    throw new TaskPresetError("config", `No store at ${source}.`);
   }
 
   const src = new Database(source, { readonly: true, fileMustExist: true });
@@ -53,7 +53,7 @@ export function backupStore(options: BackupOptions): string[] {
       .prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations'")
       .get();
     if (marker === undefined) {
-      throw new WaypointError("config", `${source} is not a Waypoint store.`);
+      throw new TaskPresetError("config", `${source} is not a TaskPreset store.`);
     }
     mkdirSync(dirname(out), { recursive: true });
     src.prepare("VACUUM INTO ?").run(out);
@@ -65,7 +65,7 @@ export function backupStore(options: BackupOptions): string[] {
   try {
     const check = (copy.prepare("PRAGMA quick_check").get() as { quick_check: string }).quick_check;
     if (check !== "ok") {
-      throw new WaypointError("storage", `Backup at ${out} failed its integrity check: ${check}`);
+      throw new TaskPresetError("storage", `Backup at ${out} failed its integrity check: ${check}`);
     }
     const c = counts(copy);
     return [

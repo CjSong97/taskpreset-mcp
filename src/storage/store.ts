@@ -1,7 +1,7 @@
 import type Database from "better-sqlite3";
 import { canonicalJson } from "../config/canonical.js";
 import { DEFAULT_PRESET, loadPreset, parsePreset } from "../config/presets.js";
-import { WaypointError } from "../domain/errors.js";
+import { TaskPresetError } from "../domain/errors.js";
 import type { Preset } from "../domain/preset.js";
 import { DEFAULT_TIMEZONE, isValidTimezone } from "../domain/time.js";
 import { mapSqliteError, openDatabase } from "./database.js";
@@ -53,7 +53,7 @@ export function openStore(options: StoreOptions): Store {
   // Validate startup configuration before touching the filesystem.
   const configured = options.preset === undefined ? undefined : loadPreset(options.preset);
   if (options.timezone !== undefined && !isValidTimezone(options.timezone)) {
-    throw new WaypointError("config", `Unknown IANA timezone "${options.timezone}".`);
+    throw new TaskPresetError("config", `Unknown IANA timezone "${options.timezone}".`);
   }
   const { db, created } = openDatabase(options.path);
 
@@ -82,14 +82,14 @@ export function openStore(options: StoreOptions): Store {
 
     if (configured !== undefined) {
       if (canonicalJson(configured) !== snapshot) {
-        throw new WaypointError(
+        throw new TaskPresetError(
           "config",
           `This store is bound to preset ${preset.id}@${preset.version}, but the configured preset ${configured.id}@${configured.version} differs. Existing data is never reinterpreted: omit --preset to use the stored preset, or use a new --db path for a different preset.`,
         );
       }
     }
     if (options.timezone !== undefined && options.timezone !== timezone) {
-      throw new WaypointError(
+      throw new TaskPresetError(
         "config",
         `This store uses timezone ${timezone}; the configured timezone ${options.timezone} differs. Omit --timezone or use a new store.`,
       );

@@ -1,5 +1,5 @@
 {
-  "name": "waypoint-mcp",
+  "name": "taskpreset-mcp",
   "version": "0.1.0",
   "private": true,
   "description": "Configurable, local-first productivity MCP server backed by SQLite.",

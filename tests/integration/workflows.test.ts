@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { WORKFLOWS } from "../fixtures/workflows.js";
-import { expectWaypointError, testApp } from "../support/app.js";
+import { expectTaskPresetError, testApp } from "../support/app.js";
 
 describe.each(WORKFLOWS)("workflow: $preset", (w) => {
   it("binds a separate store to the preset", () => {
@@ -35,12 +35,15 @@ describe.each(WORKFLOWS)("workflow: $preset", (w) => {
   it("rejects types, statuses and parents the preset does not define", () => {
     const app = testApp({ preset: w.preset });
     const work = app.items.capture({ type: w.work, title: "Work" }).item;
-    expectWaypointError(() => app.items.capture({ type: "nonexistent", title: "X" }), "validation");
-    expectWaypointError(
+    expectTaskPresetError(
+      () => app.items.capture({ type: "nonexistent", title: "X" }),
+      "validation",
+    );
+    expectTaskPresetError(
       () => app.items.capture({ type: w.work, title: "X", status: w.done }),
       "validation",
     );
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.capture({ type: w.invalidChildOfWork, title: "X", parentId: work.id }),
       "validation",
     );
@@ -53,22 +56,22 @@ describe.each(WORKFLOWS)("workflow transitions: $preset", (w) => {
     const work = app.items.capture({ type: w.work, title: "Work", status: w.move.from }).item;
     expect(app.items.update({ id: work.id, status: w.move.to }).status).toBe(w.move.to);
     expect(app.items.update({ id: work.id, status: w.cancelled }).status).toBe(w.cancelled);
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.update({ id: work.id, status: w.defaultStatus }),
       "invalid_transition",
     );
-    expectWaypointError(() => app.items.complete(work.id), "invalid_transition");
+    expectTaskPresetError(() => app.items.complete(work.id), "invalid_transition");
   });
 
   it("routes done only through complete_item", () => {
     const app = testApp({ preset: w.preset });
     const work = app.items.capture({ type: w.work, title: "Work" }).item;
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.update({ id: work.id, status: w.done }),
       "invalid_transition",
     );
     app.items.complete(work.id);
-    expectWaypointError(
+    expectTaskPresetError(
       () => app.items.update({ id: work.id, status: w.defaultStatus }),
       "invalid_transition",
     );
@@ -81,11 +84,11 @@ describe("preset isolation", () => {
     if (!avatar || !gtd) throw new Error("fixtures missing");
     const a = testApp({ preset: avatar.preset });
     const g = testApp({ preset: gtd.preset });
-    expectWaypointError(
+    expectTaskPresetError(
       () => a.items.capture({ type: avatar.work, title: "X", status: gtd.defaultStatus }),
       "validation",
     );
-    expectWaypointError(
+    expectTaskPresetError(
       () => g.items.capture({ type: gtd.work, title: "X", status: avatar.defaultStatus }),
       "validation",
     );

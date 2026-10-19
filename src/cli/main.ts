@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { parseArgs } from "node:util";
 import { openApp } from "../app.js";
-import { resolveDbPath } from "../config/paths.js";
-import { isWaypointError, WaypointError } from "../domain/errors.js";
+import { resolveDbPath, startupEnv } from "../config/paths.js";
+import { isTaskPresetError, TaskPresetError } from "../domain/errors.js";
 import { log } from "../mcp/log.js";
 import { createServer } from "../mcp/server.js";
 import { runStdio } from "../mcp/stdio.js";
@@ -12,7 +12,7 @@ import { formatChecks, runDoctor } from "./doctor.js";
 import { initStore } from "./init.js";
 import { writeReport } from "./report.js";
 
-const HELP = `Waypoint — local productivity MCP server
+const HELP = `TaskPreset — local productivity MCP server
 
 Usage: node dist/cli/main.js <command> [options]
 
@@ -26,10 +26,10 @@ Commands:
   demo     Create a NEW store at --out filled with synthetic data for trying out "report".
 
 Options (environment variable in brackets):
-  --db <absolute path>   Store file [WAYPOINT_DB]. Default: OS user-data directory.
-  --preset <id|path>     avatar-lite, gtd-lite or an absolute .json path [WAYPOINT_PRESET].
+  --db <absolute path>   Store file [TASKPRESET_DB]. Default: OS user-data directory.
+  --preset <id|path>     avatar-lite, gtd-lite or an absolute .json path [TASKPRESET_PRESET].
                          New stores default to avatar-lite; existing stores keep their preset.
-  --timezone <IANA>      Timezone for new stores, default Europe/London [WAYPOINT_TIMEZONE].
+  --timezone <IANA>      Timezone for new stores, default Europe/London [TASKPRESET_TIMEZONE].
   --out <absolute path>  backup, report, demo: destination file, which must not exist.
   --as-of <YYYY-MM-DD>   report only: pin "today" for reproducible output.
   --no-titles            report only: hide item titles (for screenshots and sharing).
@@ -67,9 +67,9 @@ async function main(argv: string[]): Promise<void> {
     args: argv,
     allowPositionals: true,
     options: {
-      db: { type: "string", default: process.env.WAYPOINT_DB },
-      preset: { type: "string", default: process.env.WAYPOINT_PRESET },
-      timezone: { type: "string", default: process.env.WAYPOINT_TIMEZONE },
+      db: { type: "string", default: startupEnv("DB") },
+      preset: { type: "string", default: startupEnv("PRESET") },
+      timezone: { type: "string", default: startupEnv("TIMEZONE") },
       out: { type: "string" },
       "as-of": { type: "string" },
       "no-titles": { type: "boolean", default: false },
@@ -117,7 +117,7 @@ async function main(argv: string[]): Promise<void> {
       print(seedDemo({ out: values.out, preset: options.preset }));
       return;
     default:
-      throw new WaypointError(
+      throw new TaskPresetError(
         "config",
         `Unknown command "${command}". Available: serve, init, doctor, backup, report, demo (see --help).`,
       );
@@ -125,7 +125,7 @@ async function main(argv: string[]): Promise<void> {
 }
 
 main(process.argv.slice(2)).catch((error: unknown) => {
-  if (isWaypointError(error)) {
+  if (isTaskPresetError(error)) {
     log("error", "command_failed", { code: error.code, message: error.message });
   } else {
     log("error", "command_failed", {

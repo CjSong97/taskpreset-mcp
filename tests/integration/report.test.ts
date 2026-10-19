@@ -9,7 +9,7 @@ import { buildReport, boardStatuses } from "../../src/services/report.js";
 import { MetricsService } from "../../src/services/metrics.js";
 import { SqliteItemRepository } from "../../src/storage/items.js";
 import { SqlitePlanRepository } from "../../src/storage/plans.js";
-import { expectWaypointError, testApp } from "../support/app.js";
+import { expectTaskPresetError, testApp } from "../support/app.js";
 import { tempDir, tempDbPath } from "../support/tmp.js";
 
 const sha = (path: string) => createHash("sha256").update(readFileSync(path)).digest("hex");
@@ -154,13 +154,13 @@ describe("report command", () => {
     const run = (out: string | undefined, asOf?: string) =>
       writeReport({ source: app.path, out, asOf, includeTitles: true });
 
-    expectWaypointError(() => run(undefined), "config");
-    expectWaypointError(() => run("relative.html"), "config");
-    expectWaypointError(() => run(join(dir, "report.txt")), "config");
-    expectWaypointError(() => run(join(dir, "ok.html"), "2026-02-30"), "config");
+    expectTaskPresetError(() => run(undefined), "config");
+    expectTaskPresetError(() => run("relative.html"), "config");
+    expectTaskPresetError(() => run(join(dir, "report.txt")), "config");
+    expectTaskPresetError(() => run(join(dir, "ok.html"), "2026-02-30"), "config");
     run(join(dir, "ok.html"));
-    expectWaypointError(() => run(join(dir, "ok.html")), "config"); // never overwrites
-    expectWaypointError(
+    expectTaskPresetError(() => run(join(dir, "ok.html")), "config"); // never overwrites
+    expectTaskPresetError(
       () =>
         writeReport({
           source: tempDbPath(),
@@ -203,9 +203,12 @@ describe("demo store", () => {
   it("only creates new stores at explicit absolute paths", () => {
     const path = join(tempDir(), "d.db");
     seedDemo({ out: path, preset: undefined });
-    expectWaypointError(() => seedDemo({ out: path, preset: undefined }), "config");
-    expectWaypointError(() => seedDemo({ out: undefined, preset: undefined }), "config");
-    expectWaypointError(() => seedDemo({ out: "d.db", preset: undefined }), "config");
-    expectWaypointError(() => seedDemo({ out: join(tempDir(), "e.db"), preset: "nope" }), "config");
+    expectTaskPresetError(() => seedDemo({ out: path, preset: undefined }), "config");
+    expectTaskPresetError(() => seedDemo({ out: undefined, preset: undefined }), "config");
+    expectTaskPresetError(() => seedDemo({ out: "d.db", preset: undefined }), "config");
+    expectTaskPresetError(
+      () => seedDemo({ out: join(tempDir(), "e.db"), preset: "nope" }),
+      "config",
+    );
   });
 });

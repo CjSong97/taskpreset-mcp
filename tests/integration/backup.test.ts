@@ -35,7 +35,7 @@ describe("backup and restore", () => {
     expect(existsSync(`${app.path}-wal`)).toBe(true);
     const sourceBefore = dumpDatabase(app.store.db);
 
-    const backup = join(tempDir(), "nested", "waypoint-backup.db");
+    const backup = join(tempDir(), "nested", "taskpreset-backup.db");
     const run = cli("backup", "--db", app.path, "--out", backup);
     expect(run.stderr).toBe("");
     expect(run.code).toBe(0);
@@ -84,7 +84,7 @@ describe("backup and restore", () => {
     db.exec("CREATE TABLE notes (x TEXT); INSERT INTO notes VALUES ('n')");
     db.close();
     const out = join(dir, "foreign-backup.db");
-    expect(cli("backup", "--db", foreign, "--out", out).stderr).toContain("not a Waypoint store");
+    expect(cli("backup", "--db", foreign, "--out", out).stderr).toContain("not a TaskPreset store");
     expect(existsSync(out)).toBe(false);
 
     expect(dumpDatabase(app.store.db)).toEqual(before);
