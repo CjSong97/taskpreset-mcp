@@ -43,7 +43,8 @@ No ORM, framework, DI container, plugin system or monorepo.
 - A store is bound to the preset snapshot it was created with; incompatible preset changes are
   rejected, never reinterpreted.
 - Never commit databases, WAL/SHM files, backups, logs, `.env` or personal config.
-- `package.json` stays `private: true`. No remote push, publish or licence choice without approval.
+- `package.json` stays `private: true` (the project is MIT licensed). Pushing to the public GitHub
+  repo `origin` is approved; npm publication, history rewrites and force pushes still need approval.
 
 ## Definition of done
 

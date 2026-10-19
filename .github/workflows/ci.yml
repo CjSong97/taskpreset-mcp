@@ -13,7 +13,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        # windows-latest now ships Visual Studio 18, which node-gyp 11 cannot find, so a missing
+        # better-sqlite3 prebuild cannot fall back to a source build. Pin the VS 2022 image.
+        os: [ubuntu-latest, windows-2022]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
