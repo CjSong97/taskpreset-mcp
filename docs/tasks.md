@@ -34,7 +34,7 @@ actually in the repository.
 - Task 19 adds `report` and `demo` ([decision 0003](decisions/0003-static-report.md)).
 - Task 20 adds eight suggested presets under `presets/suggested/` (not bundled).
 - The name "Waypoint" collides with several projects, including a same-named MCP task tracker. A
-  rename is recommended before any publication; see [docs/reports/naming.md](reports/naming.md).
+  rename is required before any publication. Round 2 recommends `presetkit` (pending the owner's choice); see [docs/reports/naming.md](reports/naming.md) and [docs/reports/market-validity.md](reports/market-validity.md).
 
 ## Pending human checks
 

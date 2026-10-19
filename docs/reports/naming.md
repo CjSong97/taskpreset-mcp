@@ -45,7 +45,7 @@ pitch with that combination. The search is not exhaustive.
 | Trailhead / Stepstone / Bearing      | free       | —           | Salesforce, a German job board, and crowded agent tooling. Avoid.                                                                                         |
 | Milepost, Cairn, Wayfinder, Pathmark | taken      | —           | Already used by MCP or agent tools.                                                                                                                       |
 
-## Recommendation
+## Recommendation (round 1, superseded by round 2 below)
 
 1. **Plotline** (`plotline-mcp`): cleanest on MCP and GitHub, and it matches the Avatar-inspired
    story structure (seasons, books, chapters) that motivated the project.
@@ -56,3 +56,29 @@ pitch with that combination. The search is not exhaustive.
 Before adopting any name: run a trademark search (UKIPO/USPTO), re-check the npm and GitHub names,
 and update `package.json`, the MCP `serverInfo` name, docs, the Notion project and CLI help in one
 sweep. The rename is mechanical and has not been done.
+
+## Round 2 (2026-10-19): descriptive names around "productivity preset system"
+
+Plotline was rejected by the owner as unrelated to the goal. The brief became: simple, clear, short,
+usable as `<name>-mcp`. Twenty candidates were checked on npm, PyPI, GitHub, the official MCP
+registry and RDAP (domains, indicative only). Gaps: some domain lookups were rate-limited, the MCP
+registry was reached through a fetch tool only, and no trademark search was done.
+
+| Name                                 | npm `-mcp` and bare | PyPI `-mcp` | GitHub / registry                                     | Clarity and risks                                                                 |
+| ------------------------------------ | ------------------- | ----------- | ----------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **presetkit**                        | free, free          | free        | two 0-star unrelated repos; no registry match         | Only candidate with "preset". Search skews to photo/video presets. `.com` taken.  |
+| **methodset**                        | free, free          | free        | `nestjs-methodset` (17 stars, unrelated); no registry | Fits GTD/Kanban/PARA as "methods"; does not say "preset"; Go "method set" jargon. |
+| **taskpreset**                       | free, free          | free        | two 0-1 star repos; no registry match                 | Clearest literal meaning; `.com` also unregistered. "Task" understates OKR/Scrum. |
+| workmethod                           | free, free          | free        | student repos only                                    | Clean, never says "preset".                                                       |
+| methodkit                            | free, free          | free        | 4 repos                                               | MethodKit is an established card-deck brand. Avoid.                               |
+| flowset, flowpack, workmode, taskkit | free, **taken**     | free        | task-workflow companies or existing MCP servers       | Existing products in the same space. Avoid.                                       |
+| playbook, switchboard                | taken               | taken       | 5+ and 10 registry entries                            | Crowded MCP namespace. Avoid.                                                     |
+
+**Recommended: `presetkit`** with a descriptor ("presetkit: productivity-system presets for AI
+assistants"), npm package `presetkit-mcp`, CLI `presetkit`. Fallbacks: `methodset`, `taskpreset`.
+Because "preset" and "method" are common words, discoverability depends on the descriptor and on
+keywords (GTD, Kanban, local-first, SQLite, productivity), not on the name alone.
+
+Not done, and needs the owner: claiming the names on npm (an outward-facing action), a
+UKIPO/USPTO trademark search, a final domain check for the chosen name, and the mechanical rename
+(package.json, MCP `serverInfo` name, CLI help, docs, Notion).
