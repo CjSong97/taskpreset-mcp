@@ -49,6 +49,15 @@ node dist/cli/main.js doctor --db /absolute/path/to/waypoint.db
 
 Keep your store outside any Git repository.
 
+## More productivity systems
+
+Besides the two bundled presets, [presets/suggested/](presets/suggested/README.md) holds eight
+starter templates: Personal Kanban, Scrum, PARA, OKR, Eisenhower matrix, Bullet Journal, Shape Up
+and MoSCoW. They are limited interpretations (each says what it leaves out), are not bundled, and
+load by absolute path: `init --db <abs>.db --preset <abs path to presets/suggested/kanban-lite.json>`.
+A store is bound to its preset, so use one `--db` per system. Tests validate every file and run it
+through the engine.
+
 ## Back up
 
 ```sh

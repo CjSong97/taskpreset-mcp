@@ -1,0 +1,30 @@
+{
+  "id": "eisenhower-lite",
+  "version": "1.0.0",
+  "name": "Eisenhower-lite",
+  "description": "A limited Eisenhower-matrix-style triage: tasks start unsorted and are sorted into Do, Decide, Delegate or Delete by urgency and importance. Tags can name who a task is delegated to. It is not a complete Eisenhower implementation (the matrix is a sorting aid, not a workflow; urgency and importance are not stored as scores and nothing re-sorts tasks as deadlines approach).",
+  "tagLabel": "Owner",
+  "itemTypes": {
+    "task": {
+      "label": "Task",
+      "executable": true,
+      "parents": [],
+      "rootAllowed": true
+    }
+  },
+  "statuses": {
+    "unsorted": { "label": "Unsorted", "category": "open" },
+    "do": { "label": "Do (urgent, important)", "category": "open" },
+    "decide": { "label": "Decide (important, not urgent)", "category": "open" },
+    "delegate": { "label": "Delegate (urgent, not important)", "category": "open" },
+    "done": { "label": "Done", "category": "done" },
+    "deleted": { "label": "Deleted (neither urgent nor important)", "category": "cancelled" }
+  },
+  "initialStatuses": ["unsorted", "do", "decide", "delegate"],
+  "transitions": {
+    "unsorted": ["do", "decide", "delegate", "deleted"],
+    "do": ["unsorted", "decide", "delegate", "deleted"],
+    "decide": ["unsorted", "do", "delegate", "deleted"],
+    "delegate": ["unsorted", "do", "decide", "deleted"]
+  }
+}

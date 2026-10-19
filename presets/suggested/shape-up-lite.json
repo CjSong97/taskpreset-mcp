@@ -1,0 +1,38 @@
+{
+  "id": "shape-up-lite",
+  "version": "1.0.0",
+  "name": "Shape-Up-lite",
+  "description": "A limited, Shape Up-inspired flow: raw ideas are shaped into pitches, a pitch is bet on for a cycle, and its scopes move uphill (figuring it out) then downhill (executing) until shipped. Dropped pitches are not extended. Tags can represent the cycle. It is not a complete Shape Up implementation (no appetite, six-week cycle dates, betting table, cool-down or hill-chart positions; pitch and scope share one status list).",
+  "tagLabel": "Cycle",
+  "itemTypes": {
+    "pitch": {
+      "label": "Pitch (project)",
+      "executable": false,
+      "parents": [],
+      "rootAllowed": true
+    },
+    "scope": {
+      "label": "Scope",
+      "executable": true,
+      "parents": ["pitch"],
+      "rootAllowed": false
+    }
+  },
+  "statuses": {
+    "raw_idea": { "label": "Raw idea", "category": "open" },
+    "shaped": { "label": "Shaped (ready to bet)", "category": "open" },
+    "bet": { "label": "Bet on (in cycle)", "category": "open" },
+    "uphill": { "label": "Uphill (figuring it out)", "category": "open" },
+    "downhill": { "label": "Downhill (executing)", "category": "open" },
+    "done": { "label": "Shipped", "category": "done" },
+    "dropped": { "label": "Dropped (not extended)", "category": "cancelled" }
+  },
+  "initialStatuses": ["raw_idea", "shaped", "uphill"],
+  "transitions": {
+    "raw_idea": ["shaped", "dropped"],
+    "shaped": ["raw_idea", "bet", "dropped"],
+    "bet": ["shaped", "uphill", "dropped"],
+    "uphill": ["downhill", "bet", "dropped"],
+    "downhill": ["uphill", "dropped"]
+  }
+}

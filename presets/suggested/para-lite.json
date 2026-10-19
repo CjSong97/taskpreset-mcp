@@ -1,0 +1,45 @@
+{
+  "id": "para-lite",
+  "version": "1.0.0",
+  "name": "PARA-lite",
+  "description": "A limited, PARA-inspired structure: areas of ongoing responsibility contain projects, resources and tasks; inactive items are archived. Tags can represent topics. It is not a complete PARA implementation (PARA organises notes and files; Waypoint stores only titles and descriptions, so a resource is a pointer, not a document).",
+  "tagLabel": "Topic",
+  "itemTypes": {
+    "area": {
+      "label": "Area",
+      "executable": false,
+      "parents": [],
+      "rootAllowed": true
+    },
+    "project": {
+      "label": "Project",
+      "executable": false,
+      "parents": ["area"],
+      "rootAllowed": true
+    },
+    "resource": {
+      "label": "Resource",
+      "executable": false,
+      "parents": ["area", "project"],
+      "rootAllowed": true
+    },
+    "task": {
+      "label": "Task",
+      "executable": true,
+      "parents": ["project", "area"],
+      "rootAllowed": true
+    }
+  },
+  "statuses": {
+    "active": { "label": "Active", "category": "open" },
+    "on_hold": { "label": "On hold", "category": "open" },
+    "done": { "label": "Completed", "category": "done" },
+    "archived": { "label": "Archived (inactive)", "category": "cancelled" }
+  },
+  "initialStatuses": ["active", "on_hold"],
+  "transitions": {
+    "active": ["on_hold", "archived"],
+    "on_hold": ["active", "archived"],
+    "archived": ["active"]
+  }
+}
