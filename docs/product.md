@@ -22,10 +22,13 @@ complete task → retrieve accurate metrics.
 - Presets are declarative JSON (types, parents, statuses, transitions, executable types).
 - MCP tools: `get_system`, `capture_item`, `query_items`, `update_item`, `complete_item`, `plan_day`,
   `get_day_plan`, `get_metrics`.
+- CLI: `serve`, `init`, `doctor`, `backup`, plus `report` (static HTML board and charts) and `demo`
+  (synthetic store) that work without an AI client.
 
 ## Non-goals
 
-No frontend, network listener, accounts, payments, hosted infrastructure, Notion integration,
+No interactive frontend (a static, read-only HTML `report` file is allowed, see
+[decision 0003](decisions/0003-static-report.md)), network listener, accounts, payments, hosted infrastructure, Notion integration,
 executable plugins, XP, recurring habits, streaks, review engine or preset gallery. No reopening of
 completed work. No time scheduling or effort estimation in day plans.
 

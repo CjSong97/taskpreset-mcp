@@ -7,8 +7,10 @@ import { log } from "../mcp/log.js";
 import { createServer } from "../mcp/server.js";
 import { runStdio } from "../mcp/stdio.js";
 import { backupStore } from "./backup.js";
+import { seedDemo } from "./demo.js";
 import { formatChecks, runDoctor } from "./doctor.js";
 import { initStore } from "./init.js";
+import { writeReport } from "./report.js";
 
 const HELP = `Waypoint — local productivity MCP server
 
@@ -19,13 +21,18 @@ Commands:
   init     Create a new empty store. Refuses to modify an existing file.
   doctor   Read-only diagnostics for the runtime, configuration and store.
   backup   Write a verified snapshot of the store to --out (never overwrites).
+  report   Write a self-contained HTML report (kanban board, heatmap, charts) to --out.
+           Opens the store read-only; needs no AI client. Never overwrites.
+  demo     Create a NEW store at --out filled with synthetic data for trying out "report".
 
 Options (environment variable in brackets):
   --db <absolute path>   Store file [WAYPOINT_DB]. Default: OS user-data directory.
   --preset <id|path>     avatar-lite, gtd-lite or an absolute .json path [WAYPOINT_PRESET].
                          New stores default to avatar-lite; existing stores keep their preset.
   --timezone <IANA>      Timezone for new stores, default Europe/London [WAYPOINT_TIMEZONE].
-  --out <absolute path>  backup only: destination file, which must not exist.
+  --out <absolute path>  backup, report, demo: destination file, which must not exist.
+  --as-of <YYYY-MM-DD>   report only: pin "today" for reproducible output.
+  --no-titles            report only: hide item titles (for screenshots and sharing).
   --help                 Show this help.
 `;
 
@@ -64,6 +71,8 @@ async function main(argv: string[]): Promise<void> {
       preset: { type: "string", default: process.env.WAYPOINT_PRESET },
       timezone: { type: "string", default: process.env.WAYPOINT_TIMEZONE },
       out: { type: "string" },
+      "as-of": { type: "string" },
+      "no-titles": { type: "boolean", default: false },
       help: { type: "boolean", default: false },
     },
   });
@@ -94,10 +103,23 @@ async function main(argv: string[]): Promise<void> {
     case "backup":
       print(backupStore({ source: resolveDbPath(options.db), out: values.out }));
       return;
+    case "report":
+      print(
+        writeReport({
+          source: resolveDbPath(options.db),
+          out: values.out,
+          asOf: values["as-of"],
+          includeTitles: !values["no-titles"],
+        }),
+      );
+      return;
+    case "demo":
+      print(seedDemo({ out: values.out, preset: options.preset }));
+      return;
     default:
       throw new WaypointError(
         "config",
-        `Unknown command "${command}". Available: serve, init, doctor, backup (see --help).`,
+        `Unknown command "${command}". Available: serve, init, doctor, backup, report, demo (see --help).`,
       );
   }
 }

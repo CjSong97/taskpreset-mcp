@@ -1,10 +1,11 @@
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { openApp } from "../../src/app.js";
 import { runDoctor } from "../../src/cli/doctor.js";
 import { SERVER_ENTRY } from "../mcp/helpers.js";
-import { tempDbPath } from "../support/tmp.js";
+import { tempDbPath, tempDir } from "../support/tmp.js";
 
 function cli(...args: string[]) {
   const result = spawnSync(process.execPath, [SERVER_ENTRY, ...args], { encoding: "utf8" });
@@ -88,5 +89,29 @@ describe("doctor", () => {
   it("flags an unsupported Node version", () => {
     const checks = runDoctor({ path: tempDbPath(), preset: undefined, nodeVersion: "v22.1.0" });
     expect(checks[0]).toMatchObject({ ok: false, label: "Node.js" });
+  });
+});
+
+describe("report and demo", () => {
+  it("seeds a demo store and renders a report end to end", () => {
+    const dir = tempDir();
+    const db = join(dir, "demo.db");
+    const html = join(dir, "report.html");
+
+    const demo = cli("demo", "--out", db, "--preset", "gtd-lite");
+    expect(demo.code).toBe(0);
+    expect(demo.stdout).toContain("gtd-lite");
+
+    const report = cli("report", "--db", db, "--out", html, "--as-of", "2026-10-12", "--no-titles");
+    expect(report.code).toBe(0);
+    expect(report.stdout).toContain("titles:    hidden");
+    const text = readFileSync(html, "utf8");
+    expect(text).toContain("GTD-lite report");
+    expect(text).toContain("Waiting for");
+    expect(text).not.toMatch(/<script/i);
+
+    const again = cli("report", "--db", db, "--out", html);
+    expect(again.code).toBe(1);
+    expect(again.stderr).toContain("never overwrite");
   });
 });

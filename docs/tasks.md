@@ -23,6 +23,16 @@ actually in the repository.
 | 16  | Add local setup and diagnostics              | G6        | Done                               |
 | 17  | Verify backup and restore safety             | G6        | Done                               |
 | 18  | Prepare real-client walkthrough & dogfooding | G6        | In progress — human checks pending |
+| 19  | Static HTML report and demo store            | Post-MVP  | Done                               |
+
+## Post-MVP decisions (2026-10-19)
+
+- The seven-day trial is **skipped by the owner**: the server works as expected and the section 3
+  checks were done by hand. Task 18's walkthrough remains available in
+  [dogfooding.md](dogfooding.md) but is no longer a blocker.
+- Task 19 adds `report` and `demo` ([decision 0003](decisions/0003-static-report.md)).
+- The name "Waypoint" collides with several projects, including a same-named MCP task tracker. A
+  rename is recommended before any publication; see [docs/reports/naming.md](reports/naming.md).
 
 ## Pending human checks
 
